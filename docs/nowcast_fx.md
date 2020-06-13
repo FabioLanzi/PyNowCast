@@ -4,15 +4,4 @@
 
 | ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/nowcast_fx.jpg) |
 |:--------------:|
-| didascalia     |
-
-
-<table>
-  <tr>
-    <td> <img src="https://github.com/FabioLanzi/PyNowCast/blob/master/resources/nowcast_fx.jpg"> </td>
-  </tr> 
-  
-  <tr>
-    <td> ciao </td>
-  </tr>
-</table>
+| **Figura 1.1** Schema a blocchi del modello utilizzato come feature extractor (`NowCastFX`).     |
