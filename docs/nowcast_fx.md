@@ -4,9 +4,9 @@
 |: ---- :|
 | didascalia!!!   |
 
-| ciao |
-|: ---- :|
-|didascalia!!!   |
+| ciao come stai |
+|:--------------:|
+| didascalia     |
 
 
 <table>
