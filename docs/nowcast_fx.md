@@ -1,10 +1,8 @@
 ## Feature Extractor
 
-| ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/nowcast_fx.jpg)   |
-|: ---- :|
-| didascalia!!!   |
 
-| ciao come stai |
+
+| ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/nowcast_fx.jpg) |
 |:--------------:|
 | didascalia     |
 
