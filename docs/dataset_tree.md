@@ -30,17 +30,19 @@ Per allenare correttamente il modello di nowcasting, si consiglia di avere un tr
 Considerando una classe con `K` immagini ed `m` valori provenienti dai sensori associati a ciascuna di esse, la struttura del relativo file opzionale `sensors.json` sarà la seguente:
 
 ```
-'img1_name': [x1_1, x1_2, ..., x1_m],
-'img2_name': [x2_1, x2_2, ..., x2_m],
-...
-'imgK_name': [xK_1, xK_2, ..., xK_m]
+{
+    "img1_name": [x1_1, x1_2, ..., x1_m],
+    "img2_name": [x2_1, x2_2, ..., x2_m],
+    ...
+    "imgK_name": [xK_1, xK_2, ..., xK_m]
+}
 ```
 
 Si tratta dunque di un file JSON in cui le chiavi sono i percorsi relativi alla directory contenente il file `sensors.json` stesso e i valori sono liste contenente gli `m` dati letti dai sensori per quella specifica immagine.
 
 Si noti che, se si sceglie di inserire il file `sensor.json` all'interno di una directory relativa ad una classe, anche tutte le altre classi devono contenerlo. Qualora per alcune immagini non fossero disponibili uno o più valori relativi ad un sensore, sarà sufficiente inserire al loro posto il valore`nan`. Se ad esempio per l'immagine `img1_name` non si disponesse del valore 2, all'interno del JSON si avrà:
 
-- `'img1_name': [x1_1, null, ..., x1_m]`
+- `"img1_name": [x1_1, null, ..., x1_m]`
 
 
 <br>
