@@ -34,6 +34,7 @@ def main(ds_path):
         print(f'{RED_BALL} ERROR: you must have at least 2 classes; you currently have {len(train_classes)}')
         exit(-1)
 
+    print(f'{GREEN_BALL} OK: the structure of your dataset seems good :)')
 
 if __name__ == '__main__':
     main()

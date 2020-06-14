@@ -20,13 +20,15 @@ La directory `train`, come il nome suggerisce, è quella preposta a ospitare le 
 
 Le sotto-directory `train` e `test` devono contenere a loro volta `n` sotto-directory, dove `n` (con `n` maggiore o uguale a 2) è il numero di classi scelte per lo specifico problema di nowcasting che si vuole approcciate con il presente framework. La directory di ogni classe deve contenere esclusivamente le immagini relative a quella specifica classe, affiancate al più da un file `sensors.json` contenente le informazioni relative ad eventuali dati aggiuntivi provenienti da appositi sensori (esempio: sensori di umidità, temperatura, pressione, ...).
 
+Per allenare correttamente il modello di nowcasting, si consiglia di avere un training set bilanciato, quindi con un quantitativo di immagini simile per ogni classe; si consiglia inoltre di avere un numero di immagini maggiore di 1000 per ogni classe.
 
 
+<br>
 ### Struttura dei File `sensor.json`
 
 Considerando una classe con `K` immagini ed `m` valori provenienti dai sensori associati a ciascuna di esse, la struttura del relativo file opzionale `sensors.json` sarà la seguente:
 
-```json
+```
 'img1_name': [x1_1, x1_2, ..., x1_m],
 'img2_name': [x2_1, x2_2, ..., x2_m],
 ...
@@ -40,10 +42,15 @@ Si noti che, se si sceglie di inserire il file `sensor.json` all'interno di una 
 - `'img1_name': [x1_1, null, ..., x1_m]`
 
 
-
+<br>
 ### Verifica della Correttezza della Struttura del Dataset
 
 È possibile verificare la correttezza della struttura del proprio dataset utilizzando lo script `chech_dataset_structure.py` tramite il seguente comando, in cui si indica con `<dataset_path>` il percorso assoluto alla directory principale del dataset:
 
 - `python chech_dataset_structure.py <dataset_path>`
 
+Lo script verificherà la presenza di errori strutturali e li comunicherà all'untento con un apposito messaggio auto-esplicativo. Saranno inoltre forniti avvertimenti  su eventuali aspetti che non si ritengono ottimali per iniziare la procedura di traning; ad esempio potrebbe essere segnalata la presenza di un numero di immagini ritenuto insufficiente per una o più classi.
+
+Gli errori saranno evidenziati con un pallino rosso e la dicitura "ERROR" e andranno necessariamente risolti prima di intraprendere la procedura di allenamento del modello di nowcasting.
+
+Gli avvertimento saranno evidenziati con un pallino giallo e la dicitura "WARNING"; in questo casto non sarà necessario (sebbene caldamente consigliato) risolvere la problematica indicata prima di procedere con l'allenamento del modello.
