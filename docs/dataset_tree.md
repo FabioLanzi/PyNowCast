@@ -24,6 +24,7 @@ Per allenare correttamente il modello di nowcasting, si consiglia di avere un tr
 
 
 <br>
+
 ### Struttura dei File `sensor.json`
 
 Considerando una classe con `K` immagini ed `m` valori provenienti dai sensori associati a ciascuna di esse, la struttura del relativo file opzionale `sensors.json` sarà la seguente:
@@ -43,6 +44,7 @@ Si noti che, se si sceglie di inserire il file `sensor.json` all'interno di una 
 
 
 <br>
+
 ### Verifica della Correttezza della Struttura del Dataset
 
 È possibile verificare la correttezza della struttura del proprio dataset utilizzando lo script `chech_dataset_structure.py` tramite il seguente comando, in cui si indica con `<dataset_path>` il percorso assoluto alla directory principale del dataset:
