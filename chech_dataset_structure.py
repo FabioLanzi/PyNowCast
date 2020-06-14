@@ -2,11 +2,11 @@
 # ---------------------
 
 import click
+import numpy as np
 import termcolor
 from path import Path
-import numpy as np
-import constants
 
+import constants
 
 RED_BALL = termcolor.colored('⬤', 'red')
 YELLOW_BALL = termcolor.colored('⬤', 'yellow')
