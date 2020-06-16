@@ -122,7 +122,7 @@ def debug(batch_size=2, device=None):
 
     print('\n▶ DECODING')
     xd = model.decode(y)
-    print(f'├── input shape: {tuple(y.shape)}')
+    print(f'f  input shape: {tuple(y.shape)}')
     print(f'└── output shape: {tuple(xd.shape)}')
 
     print('\n▶ FORWARD')

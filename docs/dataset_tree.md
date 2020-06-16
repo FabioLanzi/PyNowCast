@@ -22,6 +22,12 @@ Le sotto-directory `train` e `test` devono contenere a loro volta `n` sotto-dire
 
 Per allenare correttamente il modello di nowcasting, si consiglia di avere un training set bilanciato, quindi con un quantitativo di immagini simile per ogni classe; si consiglia inoltre di avere un numero di immagini maggiore di 1000 per ogni classe.
 
+Per velocizzare il processo di inizializzazione del dataset, è possibile creare all'interno delle directory `train` e `test` un file di cache in formato JSON che prenderà il nome di `cache.json`. La creazione di tale file avviene in automatico quando si chiama il costruttore della classe `NowCastDS` con il parametro `create_cache=True` (*NOTA*: il valore di default è `False`).
+
+```python
+training_set = NowCastDS(ds_root_path='/your/ds/root/path', mode='train', create_cache=True)
+test_set = NowCastDS(ds_root_path='/your/ds/root/path', mode='test', create_cache=True)
+```
 
 <br>
 
@@ -61,7 +67,10 @@ Gli avvertimento saranno evidenziati con un pallino giallo e la dicitura "WARNIN
 
 <br>
 
-### Esempio Directory `train`
+### Esempio
 In Figura 1.2. si propone un esempio di struttura della directory `train` nel caso di un problema di nowcasting a due classi, in cui, partendo dall'immagine RGB e dai dati di un sensore di temperatura si vuole verificare la presenza o l'assenza di nebbia nell'immagine in ingresso. Le sotto-directory `fog` e `no_fog` contengono rispettivamente immagini con nebbia e immagini in cui la nebbia è assente. Le immagini mostrate in figura sono state acquisite presso l'Osservatorio di Modena.
 
 [--- figura ---]
+
+Un esempio completo che mostra la struttura di un dataset valido, seppur contenente un numero esiguo di immagini, è contenuto all'interno di questo stesso repository:
+- `PyNowCast/dataset/example_ds`
