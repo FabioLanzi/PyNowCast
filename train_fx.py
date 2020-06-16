@@ -3,30 +3,25 @@
 
 from time import time
 
+import click
 import numpy as np
 import torch
-import torchvision as tv
 from path import Path
 from torch import nn
 from torch import optim
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
+import conf
 from dataset.nowcast_ds import NowCastDS
 from models import NowCastFX
 from progress_bar import ProgressBar
 
 
-FX_LR = 0.0001
-FX_N_WORKERS = 1
-FX_BATCH_SIZE = 1
-FX_EPOCHS = 256
-
-
 class Trainer(object):
 
     def __init__(self, exp_name, ds_root_path, device):
-        # type: (Conf) -> Trainer
+        # type: (str, str, str) -> None
 
         self.exp_name = exp_name
         self.device = device
@@ -36,20 +31,20 @@ class Trainer(object):
         self.model = self.model.to(device)
 
         # init optimizer
-        self.optimizer = optim.Adam(params=self.model.parameters(), lr=FX_LR)
+        self.optimizer = optim.Adam(params=self.model.parameters(), lr=conf.FX_LR)
 
         # init train loader
         training_set = NowCastDS(ds_root_path=ds_root_path, mode='train', create_cache=True)
         self.train_loader = DataLoader(
-            dataset=training_set, batch_size=FX_BATCH_SIZE,
-            num_workers=FX_N_WORKERS, shuffle=True, pin_memory=True,
+            dataset=training_set, batch_size=conf.FX_BATCH_SIZE,
+            num_workers=conf.FX_N_WORKERS, shuffle=True, pin_memory=True,
         )
 
         # init test loader
         test_set = NowCastDS(ds_root_path=ds_root_path, mode='test', create_cache=True)
         self.test_loader = DataLoader(
-            dataset=test_set, batch_size=FX_BATCH_SIZE,
-            num_workers=FX_N_WORKERS, shuffle=False, pin_memory=True,
+            dataset=test_set, batch_size=conf.FX_BATCH_SIZE,
+            num_workers=conf.FX_N_WORKERS, shuffle=False, pin_memory=True,
         )
 
         # init logging stuffs
@@ -67,7 +62,7 @@ class Trainer(object):
         self.best_test_loss = None
 
         # init progress bar
-        self.progress_bar = ProgressBar(max_step=len(self.train_loader), max_epoch=FX_EPOCHS)
+        self.progress_bar = ProgressBar(max_step=len(self.train_loader), max_epoch=conf.FX_EPOCHS)
 
         # possibly load checkpoint
         self.load_ck()
@@ -169,7 +164,7 @@ class Trainer(object):
         """
         start model training procedure (train > test > checkpoint > repeat)
         """
-        for _ in range(self.epoch, FX_EPOCHS):
+        for _ in range(self.epoch, conf.FX_EPOCHS):
             self.train()
 
             with torch.no_grad():
@@ -179,9 +174,23 @@ class Trainer(object):
             self.save_ck()
 
 
+H1 = 'experiment name: string without spaces'
+H2 = 'absolute path of your dataset root directory'
+H3 = 'device used to train the model; example: "cuda", "cuda:0", "cuda:1", ...'
+
+
+@click.command()
+@click.option('--exp_name', type=str, required=True, help=H1)
+@click.option('--ds_root_path', type=click.Path(exists=True), required=True, help=H2)
+@click.option('--device', type=str, default='cuda', help=H3)
+def main(exp_name, ds_root_path, device):
+    trainer = Trainer(
+        exp_name=exp_name,
+        ds_root_path=ds_root_path,
+        device=device
+    )
+    trainer.run()
+
+
 if __name__ == '__main__':
-    Trainer(
-        exp_name='default',
-        ds_root_path='/home/fabio/PycharmProjects/PyNowCast/dataset/example_ds',
-        device='cuda'
-    ).run()
+    main()

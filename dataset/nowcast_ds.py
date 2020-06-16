@@ -97,6 +97,7 @@ class NowCastDS(Dataset):
 
 
 def main():
+
     ds = NowCastDS(
         ds_root_path=Path(__file__).parent / 'example_ds',
         mode='train',
@@ -106,10 +107,10 @@ def main():
     for i in range(max(1, len(ds) // 2)):
         img, img_class = ds[i]
         print(
-            f'\n▶ Dataset sample #{i}\n'
+            f'▶ Dataset sample #{i}\n'
             f'├── image.shape: {tuple(img.shape)}\n'
             f'├── class_int_value: {img_class}\n'
-            f'└── class_name: \'{ds.class_int2str(img_class)}\''
+            f'└── class_name: \'{ds.class_int2str(img_class)}\'\n'
         )
 
 
