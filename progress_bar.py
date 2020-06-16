@@ -47,4 +47,4 @@ class ProgressBar(object):
             progress_bar, 100 * self.progress,
             e=math.ceil(math.log10(self.max_epoch)),
             s=math.ceil(math.log10(self.max_step + 1)),
-                                      )
+        )
