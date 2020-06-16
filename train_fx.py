@@ -60,6 +60,7 @@ class Trainer(object):
         # starting values
         self.epoch = 0
         self.best_test_loss = None
+        self.patience = conf.FX_PATIENCE
 
         # init progress bar
         self.progress_bar = ProgressBar(max_step=len(self.train_loader), max_epoch=conf.FX_EPOCHS)
@@ -135,7 +136,6 @@ class Trainer(object):
         """
         self.model.eval()
 
-        t = time()
         for step, sample in enumerate(self.test_loader):
             x, _ = sample
             x = x.to(self.device)
@@ -151,13 +151,17 @@ class Trainer(object):
         # log average loss on test set
         mean_test_loss = np.mean(self.test_losses)
         self.test_losses = []
-        print(f'\t● AVG Loss on TEST-set: {mean_test_loss:.6f} │ T: {time() - t:.2f} s')
+        print(f'\t● AVG Loss on TEST-set: {mean_test_loss:.6f} │ patience: ', end='')
         self.sw.add_scalar(tag='test_loss', scalar_value=mean_test_loss, global_step=self.epoch)
 
-        # save best model
+        # save best model and update training patience
         if self.best_test_loss is None or mean_test_loss < self.best_test_loss:
             self.best_test_loss = mean_test_loss
+            self.patience = conf.FX_PATIENCE
             torch.save(self.model.state_dict(), self.log_path / 'best.pth')
+        else:
+            self.patience = self.patience - 1
+        print(f'{self.patience}/{conf.FX_PATIENCE}')
 
 
     def run(self):
@@ -182,8 +186,9 @@ H3 = 'device used to train the model; example: "cuda", "cuda:0", "cuda:1", ...'
 @click.command()
 @click.option('--exp_name', type=str, required=True, help=H1)
 @click.option('--ds_root_path', type=click.Path(exists=True), required=True, help=H2)
-@click.option('--device', type=str, default='cuda', help=H3)
+@click.option('--device', type=str, default='cuda', show_default=True, help=H3)
 def main(exp_name, ds_root_path, device):
+    # type: (str, str, str) -> None
     trainer = Trainer(
         exp_name=exp_name,
         ds_root_path=ds_root_path,
