@@ -48,12 +48,12 @@ class NowCastDS(Dataset):
                     self.img_paths.append(f'{s[-2]}/{s[-1]}')
                 print(f'\r├── Loading class \'{class_dir.basename()}\'')
 
-        print('└── The dataset has been loaded')
+        print('└── The dataset has been loaded\n')
 
         if create_cache:
             with open(cache_path, 'w') as cache_file:
                 json.dump(self.img_paths, cache_file)
-            print(f'▶ Created cahce file \'{cache_path}\'')
+            print(f'▶ Created cahce file \'{cache_path}\'\n')
 
 
     def __len__(self):

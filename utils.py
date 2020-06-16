@@ -29,11 +29,20 @@ TRANSFORM = torchvision.transforms.Compose([
 
 
 def pre_process_img(img):
+    w, h = img.size
+    scale_factor = 256 / min(h, w)
+    h = int(round(h * scale_factor))
+    w = int(round(w * scale_factor))
+    new_h = int(round(h/16 + 0.5))*16
+    new_w = int(round(w/16 + 0.5))*16
+
     transform = torchvision.transforms.Compose([
-        torchvision.transforms.Resize(256),
+        torchvision.transforms.Resize((new_h, new_w)),
         torchvision.transforms.ToTensor()
     ])
-    return transform(img)
+    img = transform(img)
+
+    return img
 
 
 def imread(path):

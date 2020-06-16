@@ -74,3 +74,5 @@ In Figura 1.2. si propone un esempio di struttura della directory `train` nel ca
 
 Un esempio completo che mostra la struttura di un dataset valido, seppur contenente un numero esiguo di immagini, è contenuto all'interno di questo stesso repository:
 - `PyNowCast/dataset/example_ds`
+
+*NOTA*: il dataset `example_ds` ha solo uno scopo esemplificativo e non può essere utilizzato per allenare un modello di nowcasting a causa del numero ridotto di immagini presenti.

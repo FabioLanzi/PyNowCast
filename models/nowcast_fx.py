@@ -66,8 +66,8 @@ class NowCastFX(BaseModel):
             BasicConv2D(in_channels=16, out_channels=in_channels, kernel_size=3, padding=1, activation='Linear')
         )
 
-        if pretrained:
-            self.load_w(Path(__file__).parent / 'arturo_fx.pth')
+        # if pretrained:
+        #     self.load_w(Path(__file__).parent / 'arturo_fx.pth')
 
 
     def encode(self, x):
@@ -104,7 +104,7 @@ def debug(batch_size=2, device=None):
     if device is None:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    x = torch.rand((batch_size, 3, 256, 256)).to(device)
+    x = torch.rand((batch_size, 3, 256, 341)).to(device)
 
     model = NowCastFX(pretrained=False).to(device)
     model.requires_grad(True)
