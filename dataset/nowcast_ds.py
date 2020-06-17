@@ -64,6 +64,29 @@ class NowCastDS(Dataset):
         return len(self.img_paths)
 
 
+    def REMOVE_ME(self, i):
+        import random
+        DS_PATH = Path('/run/user/1000/gvfs/sftp:host=shenron.ing.unimo.it,user=matteo/run/user/1000/gvfs/sftp:host=aimagelab-srv-00,user=flanzi/nas/softechict-nas-1/lorenzo/lombroso')
+        DS_PATH = DS_PATH / 'webcam/Osservatorio-Modena/immagini'
+
+        if self.mode == 'train':
+            y = 2018
+        else:
+            random.seed(i * 42)
+            y = 2017
+
+        while True:
+            m1 = random.randint(1, 12)
+            d = random.randint(1, 31)
+            h = random.randint(10, 17)
+            m2 = random.randint(0, 59)
+            img_path = f'{y}/{y}-{m1:02d}/{y}-{m1:02d}-{d:02d}/{y}-{m1:02d}-{d:02d}-{h:02d}-{m2:02d}.jpg'
+            img_path = DS_PATH / img_path
+            if img_path.exists():
+                break
+
+        return img_path
+
     def __getitem__(self, i):
         # type: (int) -> Tuple[torch.Tensor, int]
         """
@@ -75,10 +98,11 @@ class NowCastDS(Dataset):
 
         # select image
         img_path = self.ds_root_path / self.mode / self.img_paths[i]
+        img_path = self.REMOVE_ME(i)
         img = utils.imread(img_path)
 
         # read class
-        img_class = self.classes.index(img_path.split('/')[-2])
+        img_class = 1# self.classes.index(img_path.split('/')[-2])
 
         # aplly pre-processing:
         # >> resize and transform to `torch.Tensor`
@@ -104,7 +128,7 @@ def main():
         create_cache=True
     )
 
-    for i in range(max(1, len(ds) // 2)):
+    for i in range(max(1, len(ds))):
         img, img_class = ds[i]
         print(
             f'▶ Dataset sample #{i}\n'
