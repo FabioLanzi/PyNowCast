@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 # ---------------------
 
+import sys
+
 import click
 import numpy as np
 import termcolor
 from path import Path
 
 import constants
+
 
 RED_BALL = termcolor.colored('⬤', 'red')
 YELLOW_BALL = termcolor.colored('⬤', 'yellow')
@@ -76,7 +79,7 @@ def main(ds_path):
 
     # find errors
     if has_errors(train_dir=train_dir, test_dir=test_dir):
-        exit(-1)
+        sys.exit(-1)
 
     # find warnings
     if has_warnings(train_dir=train_dir):

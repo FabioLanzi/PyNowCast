@@ -76,3 +76,13 @@ Un esempio completo che mostra la struttura di un dataset valido, seppur contene
 - `PyNowCast/dataset/example_ds`
 
 *NOTA*: il dataset `example_ds` ha solo uno scopo esemplificativo e non può essere utilizzato per allenare un modello di nowcasting a causa del numero ridotto di immagini presenti.
+
+
+### Dimensione delle Immagini
+È opportuno che tutte le immagini utilizzate per l'allenamento e la verifica del modello di nowcasting abbiano la stessa dimensione. Il package PyNowCast è stato infatti pensato per problemi di nowcasting a camera fissa, quindi si presuppone che tutte le immagini che compongono il training set e il test set provengano dalla stessa camera e presentino di conseguenza le medesime dimensioni.
+
+Qualora questa condizione non sia verificata, è possibile utilizzare lo script `fix_ds_img_shapes` che andrà ad uniformare la dimensioni delle immagini del dataset.
+
+```bash
+python fix_ds_img_shapes.py <dataset_root_path> --img_height=<desired_height> --img_width=<desired_width>
+```

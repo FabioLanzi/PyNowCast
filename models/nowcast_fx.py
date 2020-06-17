@@ -6,6 +6,7 @@ from typing import Optional
 import torch
 from path import Path
 from torch import nn
+from typing import Optional
 
 from models.base_model import BaseModel
 from models.basic_conv2d import BasicConv2D
@@ -86,13 +87,18 @@ class NowCastFX(BaseModel):
         return self.decoder(code)
 
 
-    def flat_features(self, x, trainable=True):
-        # type: (torch.Tensor, bool) -> torch.Tensor
+    def flat_features(self, x, fixed_size=None, trainable=True):
+        # type: (torch.Tensor, Optional[int], bool) -> torch.Tensor
         if trainable:
-            return self.encoder(x).view(x.shape[0], -1)
+            x = self.encoder(x).view(x.shape[0], -1)
         else:
             with torch.no_grad():
-                return self.encoder(x).view(x.shape[0], -1)
+                x = self.encoder(x).view(x.shape[0], -1)
+
+        if fixed_size is not None:
+            x = nn.AdaptiveAvgPool1d(fixed_size)(x.unsqueeze(1)).squeeze(1)
+
+        return x
 
 
 # ---------
