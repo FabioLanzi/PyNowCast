@@ -10,10 +10,10 @@ from models.basic_conv2d import BasicConv2D
 class SingleResidual(nn.Module):
     """
     A single residual block with 2 convolutional layers
-
-    x →|---→[layer1]---→[layer2]----↓
-       |                           [+]---→ y
-       |----------------------------↑
+    x →|---→[layer1][A]---→[layer2]----↓
+       |                              [+]---→[A]---→ y
+       |-------------------------------↑
+    [a] = activation
     """
 
 
@@ -42,9 +42,9 @@ class SingleResidual(nn.Module):
     def forward(self, x):
         # type: (torch.Tensor) -> torch.Tensor
         residual = x
-        y = self.layer1(x)
-        y = self.layer2(y)
-        return y + residual
+        y = self.layer1.forward(x)  # conv + activation
+        y = self.layer2.conv(y)  # just conv
+        return self.layer2.activation(y + residual)
 
 
 # ---------

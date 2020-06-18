@@ -67,3 +67,24 @@ class BaseModel(nn.Module, metaclass=ABCMeta):
         """
         for p in self.parameters():
             p.requires_grad = flag
+
+
+    def kaiming_init(self, activation):
+        # type: (str) -> ()
+        """
+        Apply "Kaiming-Normal" initialization to all Conv2D(s) of the model.
+        :param activation: activation function after conv; values in {'relu', 'leaky_relu'}
+        :return:
+        """
+        assert activation in ['ReLU', 'LeakyReLU', 'leaky_relu'], \
+            '`activation` must be \'ReLU\' or \'LeakyReLU\''
+
+        if activation == 'LeakyReLU':
+            activation = 'leaky_relu'
+        activation = activation.lower()
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity=activation)
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
