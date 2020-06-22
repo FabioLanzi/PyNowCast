@@ -67,6 +67,7 @@ class NowCastFX(BaseModel):
             BasicConv2D(in_channels=16, out_channels=in_channels, kernel_size=3, padding=1, activation='Linear')
         )
 
+        self.kaiming_init(activation='LeakyReLU')
         # if pretrained:
         #     self.load_w(Path(__file__).parent / 'arturo_fx.pth')
 
