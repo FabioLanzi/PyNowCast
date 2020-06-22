@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # ---------------------
 
+import json
 from time import time
 
 import click
@@ -27,16 +28,16 @@ class Trainer(object):
         self.device = device
 
         # init train loader
-        training_set = NowCastDS(ds_root_path=ds_root_path, mode='train', create_cache=True)
+        training_set = NowCastDS(ds_root_path=ds_root_path, mode='train', create_cache=False)
         self.train_loader = DataLoader(
-            dataset=training_set, batch_size=conf.FX_BATCH_SIZE,
-            num_workers=conf.FX_N_WORKERS, shuffle=True, pin_memory=True,
+            dataset=training_set, batch_size=conf.NC_BATCH_SIZE,
+            num_workers=conf.NC_N_WORKERS, shuffle=True, pin_memory=True,
         )
 
         # init test loader
-        test_set = NowCastDS(ds_root_path=ds_root_path, mode='test', create_cache=True)
+        test_set = NowCastDS(ds_root_path=ds_root_path, mode='test', create_cache=False)
         self.test_loader = DataLoader(
-            dataset=test_set, batch_size=2,
+            dataset=test_set, batch_size=1,
             num_workers=0, shuffle=False, pin_memory=True,
         )
 
@@ -46,7 +47,7 @@ class Trainer(object):
         self.model = self.model.to(device)
 
         # init optimizer
-        self.optimizer = optim.Adam(params=self.model.parameters(), lr=conf.FX_LR)
+        self.optimizer = optim.Adam(params=self.model.parameters(), lr=conf.NC_LR)
 
         # init logging stuffs
         self.log_path = Path(__file__).parent / 'log' / exp_name
@@ -61,13 +62,16 @@ class Trainer(object):
         # starting values
         self.epoch = 0
         self.best_test_accuracy = None
-        self.patience = conf.FX_PATIENCE
+        self.patience = conf.NC_PATIENCE
 
         # init progress bar
-        self.progress_bar = ProgressBar(max_step=len(self.train_loader), max_epoch=conf.FX_EPOCHS)
+        self.progress_bar = ProgressBar(max_step=len(self.train_loader), max_epoch=conf.NC_MAX_EPOCHS)
 
         # possibly load checkpoint
         self.load_ck()
+
+        with open(self.log_path / f'classes.json', 'w') as out_file:
+            json.dump(training_set.classes, out_file)
 
 
     def load_ck(self):
@@ -82,7 +86,8 @@ class Trainer(object):
             self.progress_bar.current_epoch = self.epoch
             self.model.load_state_dict(ck['model'])
             self.optimizer.load_state_dict(ck['optimizer'])
-            self.best_test_accuracy = self.best_test_accuracy
+            self.best_test_accuracy = ck['best_test_accuracy']
+            self.patience = ck['patience']
 
 
     def save_ck(self):
@@ -93,7 +98,8 @@ class Trainer(object):
             'epoch': self.epoch,
             'model': self.model.state_dict(),
             'optimizer': self.optimizer.state_dict(),
-            'best_test_loss': self.best_test_accuracy
+            'best_test_accuracy': self.best_test_accuracy,
+            'patience': self.patience
         }
         torch.save(ck, self.log_path / 'training.ck')
 
@@ -113,7 +119,7 @@ class Trainer(object):
             y_true = y_true.to(self.device)
 
             y_pred = self.model.forward(x)
-            loss = nn.NLLLoss()(torch.log(y_pred), y_true)
+            loss = nn.CrossEntropyLoss()(y_pred, y_true)
             loss.backward()
             self.train_losses.append(loss.item())
 
@@ -146,31 +152,35 @@ class Trainer(object):
             y_true = y_true.to(self.device)
 
             y_pred = self.model.forward(x)
-            y_pred = torch.argmax(y_pred, dim=0)
+            y_pred = torch.argmax(y_pred)
 
-            den += y_true.shape[0]
+            den += 1
             num += torch.sum(y_pred == y_true).item()
 
         # log average loss on test set
         test_accuracy = num / den
-        print(f'\t● Accuracy on TEST-set: {test_accuracy*100:.2f} │ patience: ', end='')
+        print(f'\t● Accuracy on TEST-set: {test_accuracy * 100:.2f} │ patience: ', end='')
         self.sw.add_scalar(tag='test_accuracy', scalar_value=test_accuracy, global_step=self.epoch)
 
         # save best model and update training patience
         if self.best_test_accuracy is None or test_accuracy > self.best_test_accuracy:
             self.best_test_accuracy = test_accuracy
-            self.patience = conf.FX_PATIENCE
+            self.patience = conf.NC_PATIENCE
             torch.save(self.model.state_dict(), self.log_path / 'best.pth')
         else:
             self.patience = self.patience - 1
-        print(f'{self.patience}/{conf.FX_PATIENCE}')
+
+        print(f'{self.patience}/{conf.NC_PATIENCE}')
+        if self.patience == 0:
+            self.show_completion_msg()
 
 
     def run(self):
         """
         start model training procedure (train > test > checkpoint > repeat)
         """
-        for _ in range(self.epoch, conf.FX_EPOCHS):
+
+        for _ in range(self.epoch, conf.NC_MAX_EPOCHS):
             self.train()
 
             with torch.no_grad():
@@ -178,6 +188,13 @@ class Trainer(object):
 
             self.epoch += 1
             self.save_ck()
+
+        self.show_completion_msg()
+
+
+    def show_completion_msg(self):
+        print(f'\n▶ DONE: the classifier training procedure has been completed')
+        print(f'└── you can find model weights and metadata @ \'{self.log_path}\'\n')
 
 
 H1 = 'experiment name: string without spaces'
@@ -191,6 +208,13 @@ H3 = 'device used to train the model; example: "cuda", "cuda:0", "cuda:1", ...'
 @click.option('--device', type=str, default='cuda', show_default=True, help=H3)
 def main(exp_name, ds_root_path, device):
     # type: (str, str, str) -> None
+
+    if not exp_name.startswith('nc_'):
+        print(f'\n▶ WARNING: experiment name "{exp_name}" is invalid')
+        print(f'├── experiment name must start with "nc_" when training nowcasting model(s)')
+        exp_name = 'nc_' + exp_name
+        print(f'└── your experiment name is change to "{exp_name}"\n')
+
     trainer = Trainer(
         exp_name=exp_name,
         ds_root_path=ds_root_path,
