@@ -34,14 +34,14 @@ class Trainer(object):
         self.optimizer = optim.Adam(params=self.model.parameters(), lr=conf.FX_LR)
 
         # init train loader
-        training_set = NowCastDS(ds_root_path=ds_root_path, mode='train', create_cache=True)
+        training_set = NowCastDS(ds_root_path=ds_root_path, mode='train', create_cache=False)
         self.train_loader = DataLoader(
             dataset=training_set, batch_size=conf.FX_BATCH_SIZE,
             num_workers=conf.FX_N_WORKERS, shuffle=True, pin_memory=True,
         )
 
         # init test loader
-        test_set = NowCastDS(ds_root_path=ds_root_path, mode='test', create_cache=True)
+        test_set = NowCastDS(ds_root_path=ds_root_path, mode='test', create_cache=False)
         self.test_loader = DataLoader(
             dataset=test_set, batch_size=conf.FX_BATCH_SIZE,
             num_workers=conf.FX_N_WORKERS, shuffle=False, pin_memory=True,
@@ -63,7 +63,7 @@ class Trainer(object):
         self.patience = conf.FX_PATIENCE
 
         # init progress bar
-        self.progress_bar = ProgressBar(max_step=len(self.train_loader), max_epoch=conf.FX_EPOCHS)
+        self.progress_bar = ProgressBar(max_step=len(self.train_loader), max_epoch=conf.FX_MAX_EPOCHS)
 
         # possibly load checkpoint
         self.load_ck()
@@ -144,9 +144,9 @@ class Trainer(object):
             loss = nn.MSELoss()(y_pred, x)
             self.test_losses.append(loss.item())
 
-            if step % 2 == 0:
-                grid = torch.cat([x[0], y_pred[0]], dim=2)
-                self.sw.add_image(tag=f'sample_{step}', img_tensor=grid, global_step=self.epoch)
+            if step % (max(8, len(self.test_loader)) // 8) == 0:
+                out_img = torch.cat([x[0], torch.clamp(y_pred[0], 0, 1)], dim=2)
+                self.sw.add_image(tag=f'sample_{step}', img_tensor=out_img, global_step=self.epoch)
 
         # log average loss on test set
         mean_test_loss = np.mean(self.test_losses)
@@ -168,7 +168,7 @@ class Trainer(object):
         """
         start model training procedure (train > test > checkpoint > repeat)
         """
-        for _ in range(self.epoch, conf.FX_EPOCHS):
+        for _ in range(self.epoch, conf.FX_MAX_EPOCHS):
             self.train()
 
             with torch.no_grad():
@@ -189,6 +189,13 @@ H3 = 'device used to train the model; example: "cuda", "cuda:0", "cuda:1", ...'
 @click.option('--device', type=str, default='cuda', show_default=True, help=H3)
 def main(exp_name, ds_root_path, device):
     # type: (str, str, str) -> None
+
+    if not exp_name.startswith('fx_'):
+        print(f'\n▶ WARNING: experiment name "{exp_name}" is invalid')
+        print(f'├── experiment name must start with "fx_" when training feature extractor(s)')
+        exp_name = 'fx_' + exp_name
+        print(f'└── your experiment name is change to "{exp_name}"\n')
+
     trainer = Trainer(
         exp_name=exp_name,
         ds_root_path=ds_root_path,

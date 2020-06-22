@@ -23,7 +23,6 @@ class NCClassifier(BaseModel):
             nn.ReLU(inplace=True),
             nn.Dropout(0.2),
             nn.Linear(256, n_classes),
-            nn.Softmax(dim=1)
         )
 
 

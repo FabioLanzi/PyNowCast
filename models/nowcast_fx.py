@@ -11,6 +11,10 @@ from typing import Optional
 from models.base_model import BaseModel
 from models.basic_conv2d import BasicConv2D
 from models.residuals import MultipleResidualBlocks
+from google_drive_downloader import GoogleDriveDownloader as gdd
+
+
+PRETRAINED_WEIGHTS_URL = '1qms6RNZVlAPrjOnD4kjovJ8HcmNxdZ_4'
 
 
 class NowCastFX(BaseModel):
@@ -68,8 +72,14 @@ class NowCastFX(BaseModel):
         )
 
         self.kaiming_init(activation='LeakyReLU')
-        # if pretrained:
-        #     self.load_w(Path(__file__).parent / 'arturo_fx.pth')
+        if pretrained:
+            weights_file_path = (Path(__file__).parent / 'nowcast_fx.pth')
+            if not weights_file_path.exists():
+                gdd.download_file_from_google_drive(
+                    file_id='1qms6RNZVlAPrjOnD4kjovJ8HcmNxdZ_4',
+                    dest_path=weights_file_path,
+                )
+            self.load_w(weights_file_path)
 
 
     def encode(self, x):
@@ -113,7 +123,7 @@ def debug(batch_size=2, device=None):
 
     x = torch.rand((batch_size, 3, 256, 341)).to(device)
 
-    model = NowCastFX(pretrained=False).to(device)
+    model = NowCastFX(pretrained=True).to(device)
     model.requires_grad(True)
     model.train()
 
@@ -129,7 +139,7 @@ def debug(batch_size=2, device=None):
 
     print('\n▶ DECODING')
     xd = model.decode(y)
-    print(f'f  input shape: {tuple(y.shape)}')
+    print(f'├── input shape: {tuple(y.shape)}')
     print(f'└── output shape: {tuple(xd.shape)}')
 
     print('\n▶ FORWARD')
