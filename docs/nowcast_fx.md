@@ -44,7 +44,6 @@ Si propone di seguito un esempio di chiamata:
 Per gli utenti più esperti, è possibile modificare il file `conf.py` per personalizzare i parametri del training; salvo casi molto particolari, tuttavia, si suggerisce di utilizzare i parametri di default. Per completezza, si riporta la porzione del file di configurazione relativa all'allenamento del feature extractor:
 
 
-
 ```python
 # feature extractor settings
 FX_LR = 0.0001  # learning rate used to trane the feature extractor
@@ -53,4 +52,3 @@ FX_BATCH_SIZE = 8  # batch size used to trane the feature extractor
 FX_MAX_EPOCHS = 256  # maximum training duration (# epochs)
 FX_PATIENCE = 16 # stop training if no improvement is seen for a ‘FX_PATIENCE’ number of epochs
 ```
-
