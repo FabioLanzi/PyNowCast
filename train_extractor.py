@@ -107,7 +107,7 @@ class Trainer(object):
         for step, sample in enumerate(self.train_loader):
             self.optimizer.zero_grad()
 
-            x, _ = sample
+            x, _, _ = sample
             x = x.to(self.device)
 
             y_pred = self.model.forward(x)
@@ -137,7 +137,7 @@ class Trainer(object):
         self.model.eval()
 
         for step, sample in enumerate(self.test_loader):
-            x, _ = sample
+            x, _, _ = sample
             x = x.to(self.device)
 
             y_pred = self.model.forward(x)

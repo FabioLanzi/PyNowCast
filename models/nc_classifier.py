@@ -6,29 +6,34 @@ from torch import nn
 
 from models.base_model import BaseModel
 from models.nowcast_fx import NowCastFX
-
+from typing import Optional
 
 FEATURE_VECTOR_SIZE = 768
 
 
 class NCClassifier(BaseModel):
 
-    def __init__(self, n_classes=2):
+    def __init__(self, n_classes=2, sensor_data_len=0):
         super().__init__()
+
+        self.n_classes = n_classes
+        self.sensor_data_len = sensor_data_len
 
         self.extractor = NowCastFX(pretrained=True)
         self.classifier = nn.Sequential(
             nn.Dropout(0.2),
-            nn.Linear(FEATURE_VECTOR_SIZE, 256),
+            nn.Linear(sensor_data_len + FEATURE_VECTOR_SIZE, 256),
             nn.ReLU(inplace=True),
             nn.Dropout(0.2),
             nn.Linear(256, n_classes),
         )
 
 
-    def forward(self, x):
-        # type: (torch.Tensor) -> torch.Tensor
+    def forward(self, x, sensor_data=None):
+        # type: (torch.Tensor, Optional[torch.Tensor]) -> torch.Tensor
         x = self.get_features(x)
+        if sensor_data.shape[-1] != 0:
+            x = torch.cat([x, sensor_data], 1)
         return self.classifier.forward(x)
 
 

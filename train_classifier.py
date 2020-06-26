@@ -43,7 +43,7 @@ class Trainer(object):
 
         # init model
         n_classes = len(training_set.classes)
-        self.model = NCClassifier(n_classes=n_classes)
+        self.model = NCClassifier(n_classes=n_classes, sensor_data_len=training_set.sensor_data_len)
         self.model = self.model.to(device)
 
         # init optimizer
@@ -114,11 +114,12 @@ class Trainer(object):
         for step, sample in enumerate(self.train_loader):
             self.optimizer.zero_grad()
 
-            x, y_true = sample
-            x = x.to(self.device)
+            x, y_true, s_data = sample
+            x = x.to(self.device).float()
             y_true = y_true.to(self.device)
+            s_data = s_data.to(self.device).float()
 
-            y_pred = self.model.forward(x)
+            y_pred = self.model.forward(x, sensor_data=s_data)
             loss = nn.CrossEntropyLoss()(y_pred, y_true)
             loss.backward()
             self.train_losses.append(loss.item())
@@ -147,11 +148,12 @@ class Trainer(object):
         num = 0
         den = 0
         for step, sample in enumerate(self.test_loader):
-            x, y_true = sample
-            x = x.to(self.device)
+            x, y_true, s_data = sample
+            x = x.to(self.device).float()
             y_true = y_true.to(self.device)
+            s_data = s_data.to(self.device).float()
 
-            y_pred = self.model.forward(x)
+            y_pred = self.model.forward(x, sensor_data=s_data)
             y_pred = torch.argmax(y_pred)
 
             den += 1

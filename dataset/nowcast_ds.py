@@ -2,8 +2,10 @@
 # ---------------------
 
 import json
+from typing import List
 from typing import Tuple
 
+import numpy as np
 import torch
 from path import Path
 from torch.utils.data import Dataset
@@ -55,6 +57,35 @@ class NowCastDS(Dataset):
                 json.dump(self.img_paths, cache_file)
             print(f'▶ Created cahce file \'{cache_path}\'\n')
 
+        self.sensors = {}
+        self.s_max = None
+        self.s_min = None
+        for c in self.classes:
+            sensors_file_path = self.ds_root_path / self.mode / c / 'sensors.json'
+            if sensors_file_path.exists():
+                with open(sensors_file_path, 'r') as in_file:
+                    _sensors = json.load(in_file)
+                for key in _sensors:
+                    self.sensors[f'{c}/{key}'] = _sensors[key]
+                    self.__update_sensor_data_range(_sensors[key])
+
+        if len(self.sensors) == 0:
+            self.sensor_data_len = 0
+
+
+    def __update_sensor_data_range(self, new_data):
+        # type: (List) -> None
+        new_data = np.array(new_data, dtype=np.float)
+        if self.s_max is None:
+            self.s_max = new_data
+        else:
+            self.s_max = np.nanmax(np.array([new_data, self.s_max]), 0)
+        if self.s_min is None:
+            self.s_min = new_data
+            self.sensor_data_len = len(new_data)
+        else:
+            self.s_min = np.nanmin(np.array([new_data, self.s_min]), 0)
+
 
     def __len__(self):
         # type: () -> int
@@ -65,7 +96,7 @@ class NowCastDS(Dataset):
 
 
     def __getitem__(self, i):
-        # type: (int) -> Tuple[torch.Tensor, int]
+        # type: (int) -> Tuple[torch.Tensor, int, np.ndarray]
         """
         :param i: image index
         :return: (img, img_class)
@@ -78,13 +109,21 @@ class NowCastDS(Dataset):
         img = utils.imread(img_path)
 
         # read class
-        img_class = self.classes.index(img_path.split('/')[-2])
+        img_class_name = img_path.split('/')[-2]
+        img_class = self.classes.index(img_class_name)
+
+        # read sensor(s) data and normalize them
+        s_data = self.sensors.get(f'{img_class_name}/{img_path.basename()}', [])
+        s_data = np.array(s_data, dtype=np.float)
+        if len(s_data) > 0:
+            s_data = (s_data - self.s_min) / (self.s_max - self.s_min)
+            s_data[np.isnan(s_data)] = -1
 
         # aplly pre-processing:
         # >> resize and transform to `torch.Tensor`
         img = utils.pre_process_img(img)
 
-        return img, img_class
+        return img, img_class, s_data
 
 
     def class_int2str(self, class_int_value):
@@ -98,16 +137,17 @@ class NowCastDS(Dataset):
 
 def main():
     ds = NowCastDS(
-        ds_root_path='/home/matteo/PycharmProjects/Lombroso/LombrosoFog/dataset',
-        mode='train',
+        ds_root_path='/home/fabio/PycharmProjects/PyNowCast/dataset/example_ds',
+        mode='test',
         create_cache=True
     )
 
-    for i in range(0, 1, 100):
-        img, img_class = ds[i]
+    for i in range(0, len(ds)):
+        img, img_class, s_data = ds[i]
         print(
             f'▶ Dataset sample #{i}\n'
             f'├── image.shape: {tuple(img.shape)}\n'
+            f'├── sensor(s) data: {s_data}\n'
             f'├── class_int_value: {img_class}\n'
             f'└── class_name: \'{ds.class_int2str(img_class)}\'\n'
         )
