@@ -42,8 +42,10 @@ class Trainer(object):
         )
 
         # init model
-        n_classes = len(training_set.classes)
-        self.model = NCClassifier(n_classes=n_classes, sensor_data_len=training_set.sensor_data_len)
+        self.classes = training_set.classes
+        self.sensor_data_len = training_set.sensor_data_len
+        self.sdata_range = (training_set.s_min, training_set.s_max)
+        self.model = NCClassifier(n_classes=len(self.classes), sensor_data_len=self.sensor_data_len)
         self.model = self.model.to(device)
 
         # init optimizer
@@ -102,6 +104,17 @@ class Trainer(object):
             'patience': self.patience
         }
         torch.save(ck, self.log_path / 'training.ck')
+
+
+    def save_training_result(self):
+        training_result_dict = {
+            'classes': self.classes,
+            'sensor_data_len': self.sensor_data_len,
+            'sdata_range': self.sdata_range,
+            'model_weights': self.model.state_dict()
+        }
+        file_path = self.exp_name.replace('nc_', '') + '.pync'
+        torch.save(training_result_dict, self.log_path / file_path)
 
 
     def train(self):
@@ -168,7 +181,7 @@ class Trainer(object):
         if self.best_test_accuracy is None or test_accuracy > self.best_test_accuracy:
             self.best_test_accuracy = test_accuracy
             self.patience = conf.NC_PATIENCE
-            torch.save(self.model.state_dict(), self.log_path / 'best.pth')
+            self.save_training_result()
         else:
             self.patience = self.patience - 1
 

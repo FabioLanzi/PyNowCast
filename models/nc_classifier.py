@@ -14,6 +14,11 @@ FEATURE_VECTOR_SIZE = 768
 class NCClassifier(BaseModel):
 
     def __init__(self, n_classes=2, sensor_data_len=0):
+        """
+        :param n_classes: number of classes of the nowcasting problem you want to approach using this model
+        :param sensor_data_len: length of the vector containing the data read by the sensor(s)
+            >> sensor_data_len is 0 by default
+        """
         super().__init__()
 
         self.n_classes = n_classes
@@ -32,7 +37,7 @@ class NCClassifier(BaseModel):
     def forward(self, x, sensor_data=None):
         # type: (torch.Tensor, Optional[torch.Tensor]) -> torch.Tensor
         x = self.get_features(x)
-        if sensor_data.shape[-1] != 0:
+        if sensor_data is not None and sensor_data.shape[-1] != 0:
             x = torch.cat([x, sensor_data], 1)
         return self.classifier.forward(x)
 
