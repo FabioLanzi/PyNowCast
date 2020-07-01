@@ -61,6 +61,9 @@ def classify(img_path, pync_file_path, sensor_data, device):
         sdata = (sdata - s_min) / (s_max - s_min)
         sdata[np.isnan(sdata)] = -1
         sdata = torch.tensor(sdata).unsqueeze(0).to(device).float()
+        assert len(sdata) == sensor_data_len, \
+            'ERROR: the length of the input `sensor_data` array does not match ' \
+            'the length specified in the` .pync` file.'
     else:
         sdata = None
 
