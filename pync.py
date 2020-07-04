@@ -8,7 +8,7 @@ import click
 import numpy as np
 import torch
 from torch import nn
-
+import sys
 import utils
 from models import NCClassifier
 
@@ -19,7 +19,7 @@ H3 = 'optional list of sensor(s) data -> ";"-separated values (no spaces) | exam
 H4 = 'device you want to use | example: "cuda", "cuda:0", "cuda:1", ...'
 
 
-def classify(img_path, pync_file_path, sensor_data, device):
+def _classify(img_path, pync_file_path, sensor_data, device):
     # type: (str, str, str, str) -> Tuple[List[str], np.ndarray]
     """
     :param img_path: path of the image you want to classify
@@ -76,16 +76,36 @@ def classify(img_path, pync_file_path, sensor_data, device):
 
 
 @click.command()
+@click.option('--pync-file-path', type=click.Path(exists=True), required=True, help=H2)
+def show_info(pync_file_path):
+    # type: (str) -> None
+
+    print(f'\n▶ Showing info of \'{pync_file_path}\'')
+    pnc_dict = torch.load(pync_file_path)
+    classes = pnc_dict['classes']
+    sensor_data_len = pnc_dict['sensor_data_len']
+    weights_size = sys.getsizeof(pnc_dict['model_weights'])
+    print(f'├── model weights (size): {weights_size} bytes')
+    print(f'├── sensor data len: {sensor_data_len}')
+    print(f'└── classes:')
+
+    for i in range(len(classes)):
+        c = classes[i]
+        branch = '    └──' if i == len(classes) - 1 else '    ├──'
+        print(f'{branch}[{i}] {c}')
+
+
+@click.command()
 @click.option('--img_path', type=click.Path(exists=True), required=True, help=H1)
 @click.option('--pync_file_path', type=click.Path(exists=True), required=True, help=H2)
 @click.option('--sensor_data', type=str, default=None, show_default=True, help=H3)
 @click.option('--device', type=str, default='cuda', show_default=True, help=H4)
-def main(img_path, pync_file_path, sensor_data, device):
+def classify(img_path, pync_file_path, sensor_data, device):
     # type: (str, str, str, str) -> None
 
     print(f'\n▶ Classifying image \'{img_path}\'')
 
-    classes, probabilities = classify(img_path, pync_file_path, sensor_data, device)
+    classes, probabilities = _classify(img_path, pync_file_path, sensor_data, device)
     selected_class = np.argmax(probabilities)
 
     # print formatted results
@@ -100,5 +120,13 @@ def main(img_path, pync_file_path, sensor_data, device):
         ), end=' ❮⬤\n' if i == selected_class else '\n')
 
 
+@click.group()
+def cli():
+    pass
+
+
+cli.add_command(classify)
+cli.add_command(show_info)
+
 if __name__ == '__main__':
-    main()
+    cli()
