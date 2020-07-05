@@ -1,4 +1,9 @@
-# PyNowCast
+<br>
+
+### ![180407](/Users/Fabio/Downloads/180407.png)
+
+<br>
+
 ### Package Python per Algoritmi e Modelli di Nowcasting
 
 Con il termine “nowcasting” facciamo riferimento all’insieme di tecniche finalizzate alla predizione delle condizioni meteorologiche all’istante di tempo attuale o comunque nell’immediato futuro (generalmente entro un massimo 5/10 minuti) circoscritte a una particolare zona di interesse. Questo concetto si affianca spesso a quello più noto di “forecasting”, che riguarda tuttavia previsioni di accuratezza inferiore, ma relative ad una finestra temporale più ampia, arrivando anche a stime di una settimana in avanti. 
@@ -12,7 +17,19 @@ Il problema del nowcasting può essere efficacemente affrontato affidandosi a te
 <br>
 
 ### 1. Quick Start
-...
+Si propone di seguito una guida rapida dall'utilizzo di PyNowCast con i principali passaggi da seguire per arrivare alla classificazione di una data immagine di input. 
+
+1. Organizzare il dataset come descritto alla Sezione 2; supponiamo ad esempio di porre tale dataset nella directory `/nas/dataset/nowcast_ds`
+2. Allenare il feature extractor come descritto nella Sezione 3 tramite l'apposito script `train_extractor.py`
+   - esempio: `python train_extractor.py --exp_name='fx_example' --ds_root_path='/nas/dataset/nowcast_ds'`
+3. Allenare il classificatore come descritto nella Sezione 4 tramite l'apposito script `train_classifier.py`
+   - esempio: `python train_classifier.py --exp_name='nc_example' --ds_root_path='/nas/dataset/nowcast_ds' --pync_file_path='/nas/pync/example.pync'`
+4. Utilizzare il classificatore precedentemente allenato su un'immagine a piacere utilizzando l'apposito comando `classify` dello script `pync.py`
+   - esempio: `python pync.py --pync_file_path=/nas/pync/example.pync`
+
+
+
+Nelle sezioni che seguono, saranno illustrati nel dettaglio tutti i passaggi qui accennati, accompagnati da opportune motivazione alle scelte effettuate.
 
 <br>
 
@@ -90,8 +107,10 @@ Un esempio completo che mostra la struttura di un dataset valido, seppur contene
 
 *NOTA*: il dataset `example_ds` ha solo uno scopo esemplificativo e non può essere utilizzato per allenare un modello di nowcasting a causa del numero ridotto di immagini presenti.
 
+<br>
 
 #### 2.5. Dimensione delle Immagini
+
 È opportuno che tutte le immagini utilizzate per l'allenamento e la verifica del modello di nowcasting abbiano la stessa dimensione. Il package PyNowCast è stato infatti pensato per problemi di nowcasting a camera fissa, quindi si presuppone che tutte le immagini che compongono il training set e il test set provengano dalla stessa camera e presentino di conseguenza le medesime dimensioni.
 
 Qualora questa condizione non sia verificata, è possibile utilizzare lo script `fix_ds_img_shapes` che andrà ad uniformare la dimensioni delle immagini del dataset.
@@ -100,6 +119,7 @@ Qualora questa condizione non sia verificata, è possibile utilizzare lo script 
 python fix_ds_img_shapes.py <dataset_root_path> --img_height=<desired_height> --img_width=<desired_width>
 ```
 
+<br>
 
 ### 3. Feature Extractor
 
@@ -128,7 +148,7 @@ In tal senso, l'uso di un autoencoder composto da un encoder e un decoder specul
 
 L'autoencoder utilizzato è mostrato in Figura 2.1.
 
-
+<br>
 
 #### 3.2. Procedura di Allenamento
 
@@ -141,7 +161,7 @@ Per avviare la procedura di allenamento del feature extractor è possibile utili
 
 Si propone di seguito un esempio di chiamata:
 
-- `python train_fx.py --exp_name='fx_try1' --ds_root_path='/nas/dataset/nowcast_ds'`
+- `python train_extractor.py --exp_name='fx_try1' --ds_root_path='/nas/dataset/nowcast_ds'`
 
 
 
@@ -157,6 +177,22 @@ FX_MAX_EPOCHS = 256  # maximum training duration (# epochs)
 FX_PATIENCE = 16 # stop training if no improvement is seen for a ‘FX_PATIENCE’ number of epochs
 ```
 
+<br>
+
 ### 4. Classificatore
+
+Il cuore di PyNowCast è il modello utilizzato per la classificazione che si compone di due elementi fondamentali: il feature extractor di cui si è discusso nella Sezione 3 e una rete completamente connessa a 3 livelli che svolge il ruolo di classificatore vero e proprio. La struttura semplificata dell'intero modello è mostrata in Figura ?? (presupponendo un problema di classificazione a 3 classi).
+
+<br>
+
+| ![classifier](/Users/Fabio/Desktop/PyNowCast/resources/classifier.png) |
+| ------------------------------------------------------------ |
+| **Figura ??.** Struttura semplificata del modello di classificazione (feature extractor + rete completamente connessa a 3 livelli). Nel caso in figura, si considera un problema di classificazione a 3 classi. |
+
+<br>
+
+Data un'immagine di input il feature extractor ne estrae una rappresentazione compatta (indicata con il termine "code" in Figura ??). Tale rappresentazione viene opportunamente ridimensionata e "srotolata" ottenendo un array di valori che rappresenta l'ingresso delle rate completamente connessa preposta alla classificazione. Se disponibili, anche i dati dei sensori relativi all'immagine di input sono passati in ingresso alla rete completamente connessa, affiancandosi quindi alle feature visuali. 
+
+
 
 ### 5. Risultati
