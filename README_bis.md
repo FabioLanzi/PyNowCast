@@ -191,8 +191,9 @@ Il cuore di PyNowCast è il modello utilizzato per la classificazione che si com
 
 <br>
 
-Data un'immagine di input il feature extractor ne estrae una rappresentazione compatta (indicata con il termine "code" in Figura ??). Tale rappresentazione viene opportunamente ridimensionata e "srotolata" ottenendo un array di valori che rappresenta l'ingresso delle rate completamente connessa preposta alla classificazione. Se disponibili, anche i dati dei sensori relativi all'immagine di input sono passati in ingresso alla rete completamente connessa, affiancandosi quindi alle feature visuali. 
+Data un'immagine di input il feature extractor ne estrae una rappresentazione compatta (indicata con il termine "code" in Figura ??). Tale rappresentazione viene opportunamente ridimensionata e "srotolata" ottenendo un array di valori che rappresenta l'ingresso delle rate completamente connessa preposta alla classificazione. Se disponibili, anche i dati dei sensori relativi all'immagine di input sono passati in ingresso alla rete completamente connessa, affiancandosi quindi alle feature visuali. L'output finale del modello è rappresentato da $N$ valori compresi tra 0 e 1 che rappresentano le probabilità associate a ciascuna delle $N$ classi del problema specifico che si sta affrontando.
 
 
 
 ### 5. Risultati
+
