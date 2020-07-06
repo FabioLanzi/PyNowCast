@@ -227,14 +227,14 @@ I risultati della procedura di allenamento vengono salvati in un apposito file c
 
 Dato un file `.pync` è possibile consultare le informazioni in esso contenute utilizzando il comando `show-info` contenuto nello script `pync.py` nel modo che seghe:
 
-- `python pync.py show-info --pync-file-path=/your/pync/file/path/example.pync`
+- `python pync.py show-info --pync-file-path=/your/pync/file.pync`
 
 
 
 Si mostra di seguito un esempio di output del comando di cui sopra:
 
 ```
-▶ Showing info of '/your/pync/file/path/example.pync'
+▶ Showing info of '/your/pync/file.pync'
 ├── model weights (size): 10536 bytes
 ├── sensor data len: 3
 └── classes:
@@ -249,3 +249,14 @@ Si mostra di seguito un esempio di output del comando di cui sopra:
 ### 5. Risultati
 
 ...
+
+- ``python pync.py classify --img_path=/your/input/image.jpg --pync_file_path=your/pync/file.pync`
+
+```
+▶ Classifying image '/your/input/image.jpg'
+├──[0]───[sun]:  0.10 %
+├──[1]──[rain]: 84.11 % ❮⬤
+├──[2]───[fog]: 14.17 %
+└──[3]──[snow]:  1.62 %
+```
+
