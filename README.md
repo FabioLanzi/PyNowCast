@@ -250,7 +250,7 @@ Si mostra di seguito un esempio di output del comando di cui sopra:
 
 ...
 
-- ``python pync.py classify --img_path=/your/input/image.jpg --pync_file_path=your/pync/file.pync`
+- `python pync.py classify --img_path=/your/input/image.jpg --pync_file_path=your/pync/file.pync`
 
 ```
 ▶ Classifying image '/your/input/image.jpg'
