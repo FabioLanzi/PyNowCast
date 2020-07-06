@@ -1,9 +1,4 @@
-<br>
-
-### ![180407](/Users/Fabio/Downloads/180407.png)
-
-<br>
-
+# ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/logo.png) 
 ### Package Python per Algoritmi e Modelli di Nowcasting
 
 Con il termine “nowcasting” facciamo riferimento all’insieme di tecniche finalizzate alla predizione delle condizioni meteorologiche all’istante di tempo attuale o comunque nell’immediato futuro (generalmente entro un massimo 5/10 minuti) circoscritte a una particolare zona di interesse. Questo concetto si affianca spesso a quello più noto di “forecasting”, che riguarda tuttavia previsioni di accuratezza inferiore, ma relative ad una finestra temporale più ampia, arrivando anche a stime di una settimana in avanti. 
@@ -17,6 +12,7 @@ Il problema del nowcasting può essere efficacemente affrontato affidandosi a te
 <br>
 
 ### 1. Quick Start
+
 Si propone di seguito una guida rapida dall'utilizzo di PyNowCast con i principali passaggi da seguire per arrivare alla classificazione di una data immagine di input. 
 
 1. Organizzare il dataset come descritto alla Sezione 2; supponiamo ad esempio di porre tale dataset nella directory `/nas/dataset/nowcast_ds`
@@ -137,8 +133,9 @@ Nell'ambito della Computer Vision, esistono una serie di feature extractor stand
 
 <br>
 
-
 Nel nostro caso specifico, tuttavia, risulta più opportuno affidarsi ad un feature extractor più mirato e incentrato in sulle nostre esigenze particolari. Il problema che _PyNowCast_ va ad affrontare infatti è molto vincolato e i vincoli che lo contraddistinguono, se ben sfruttati, possono semplificarlo enormemente. In questo senso, per il nostro package abbiamo deciso di orientarci verso un feature extractor personalizzato basato su un autoencoder, che sia in grado di essere allenato efficacemente in modo non supervisionato.
+
+<br>
 
 #### 3.1. Autoencoder
 
@@ -161,9 +158,7 @@ Per avviare la procedura di allenamento del feature extractor è possibile utili
 
 Si propone di seguito un esempio di chiamata:
 
-- `python train_extractor.py --exp_name='fx_try1' --ds_root_path='/nas/dataset/nowcast_ds'`
-
-
+- `python train_fx.py --exp_name='fx_try1' --ds_root_path='/nas/dataset/nowcast_ds'`
 
 Per gli utenti più esperti, è possibile modificare il file `conf.py` per personalizzare i parametri del training; salvo casi molto particolari, tuttavia, si suggerisce di utilizzare i parametri di default. Per completezza, si riporta la porzione del file di configurazione relativa all'allenamento del feature extractor:
 
@@ -191,8 +186,66 @@ Il cuore di PyNowCast è il modello utilizzato per la classificazione che si com
 
 <br>
 
-Data un'immagine di input il feature extractor ne estrae una rappresentazione compatta (indicata con il termine "code" in Figura ??). Tale rappresentazione viene opportunamente ridimensionata e "srotolata" ottenendo un array di valori che rappresenta l'ingresso delle rate completamente connessa preposta alla classificazione. Se disponibili, anche i dati dei sensori relativi all'immagine di input sono passati in ingresso alla rete completamente connessa, affiancandosi quindi alle feature visuali. 
+Data un'immagine di input il feature extractor ne estrae una rappresentazione compatta (indicata con il termine "code" in Figura ??). Tale rappresentazione viene opportunamente ridimensionata e "srotolata" ottenendo un array di valori che rappresenta l'ingresso delle rate completamente connessa preposta alla classificazione. Se disponibili, anche i dati dei sensori relativi all'immagine di input sono passati in ingresso alla rete completamente connessa, affiancandosi quindi alle feature visuali. L'output finale del modello è rappresentato da $N$ valori compresi tra 0 e 1 che rappresentano le probabilità associate a ciascuna delle $N$ classi del problema specifico che si sta affrontando.
+
+<br>
+
+#### 4.1. Procedura di Allenamento
+
+Per avviare la procedura di allenamento del feature extractor è possibile utilizzare lo script `train_classifier.py` con le seguenti opzioni:
+
+- `--exp_name`: etichetta assegnata alla corrente procedura di allenamento del classificatore;  per differenziare le etichette assegnate al classificatore da quelle assegnate al feature extractor, si suggerisce di utilizzare il prefizzo `nc_`. 
+- NOTA: se è stato precedentemente allenato un feature extractor con un dato `exp_name`, è possibile utilizzare la medesima etichetta anche per il classificatore (a meno del prefisso) per caricare automaticamente i pesi del feature extractor velocizzando notevolmente la procedura di training del classificatore.
+- `--ds_root_path`: percorso della directory principale contenete il proprio dataset.
+- `--pync_file_path`: percorso del file`.pync` contenente i risultati della procedura di allenamento del classificatore; se non specificato, tale file sarà salvato nell'attuale working directory e il suo nome sarà quello specificato con l'opzione `--exp_name` (più l'estensione `.pync`).
+- `--device`: tramite questa opzione è possibile selezionare il device su cui sarà effettuata la procedura di allenamento del classificatore; i possibili valori sono i seguenti: `'cuda'` o `'cuda:<numero specifica gpu>'` per un allenamento su GPU (consigliato) o `'cpu'` per un allenamento su CPU (sconsigliato). Se non specificato, il valore di default è `'cuda'`
+
+Si propone di seguito un esempio di chiamata:
+
+- `python train_classifier.py --exp_name='nc_try1' --ds_root_path='/nas/dataset/nowcast_ds'`
+- NOTA: qualora sia stato avviato in precedenza un training del feature extractor con l'opzione `--exp_name=fx_try1`, all'avvio della procedura di training del classificatore, il feature extractor parecaricherà i pesi di `fx_try1`.
+
+Per gli utenti più esperti, è possibile modificare il file `conf.py` per personalizzare i parametri del training; salvo casi molto particolari, tuttavia, si suggerisce di utilizzare i parametri di default. Per completezza, si riporta la porzione del file di configurazione relativa all'allenamento del feature extractor:
 
 
+```python
+# nowcasting classifier settings
+NC_LR = 0.0001  # learning rate used to trane the nowcasting classifier
+NC_N_WORKERS = 4  # worker(s) number of the dataloader
+NC_BATCH_SIZE = 8  # batch size used to trane the nowcasting classifier
+NC_MAX_EPOCHS = 256  # maximum training duration (# epochs)
+NC_PATIENCE = 16 # stop training if no improvement is seen for a ‘NC_PATIENCE’ number of epochs
+```
+
+<br>
+
+#### 4.2. File `.pync`
+
+I risultati della procedura di allenamento vengono salvati in un apposito file con estensione `.pync` il cui path può essere impostato dall'untente tramite l'opzione `--pync_file_path`; tale file contiene i pesi del classificatore e alcune informazioni utili in fase di evaluation del modello, come il nome delle classi considerate e la dimensione dell'array dei valori dei sensori.
+
+
+
+Dato un file `.pync` è possibile consultare le informazioni in esso contenute utilizzando il comando `show-info` contenuto nello script `pync.py` nel modo che seghe:
+
+- `python pync.py show-info --pync-file-path=/your/pync/file/path/example.pync`
+
+
+
+Si mostra di seguito un esempio di output del comando di cui sopra:
+
+```
+▶ Showing info of '/your/pync/file/path/example.pync'
+├── model weights (size): 10536 bytes
+├── sensor data len: 3
+└── classes:
+    ├──[0] sun
+    ├──[1] rain
+    ├──[2] fog
+    └──[3] snow
+```
+
+<br>
 
 ### 5. Risultati
+
+...
