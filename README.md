@@ -96,8 +96,6 @@ Gli avvertimento saranno evidenziati con un pallino giallo e la dicitura "WARNIN
 #### 2.4. Esempio
 In Figura 1.2. si propone un esempio di struttura della directory `train` nel caso di un problema di nowcasting a due classi, in cui, partendo dall'immagine RGB e dai dati di un sensore di temperatura si vuole verificare la presenza o l'assenza di nebbia nell'immagine in ingresso. Le sotto-directory `fog` e `no_fog` contengono rispettivamente immagini con nebbia e immagini in cui la nebbia è assente. Le immagini mostrate in figura sono state acquisite presso l'Osservatorio di Modena.
 
-[--- figura ---]
-
 Un esempio completo che mostra la struttura di un dataset valido, seppur contenente un numero esiguo di immagini, è contenuto all'interno di questo stesso repository:
 - `PyNowCast/dataset/example_ds`
 
@@ -121,9 +119,7 @@ python fix_ds_img_shapes.py <dataset_root_path> --img_height=<desired_height> --
 
 Il feature extractor è un componente essenziale della maggior parte dei modelli di classificazione basati su reti neurali; il suo compito è, come suggerisce il nome stesso, quello di estrarre una serie di caratteristiche che "riassumano" i tratti salienti dell'oggetto passato in ingresso, che nel nostro caso è un'immagine RGB proveniente da una camera fissa. 
 
-Nell'ambito della Computer Vision, esistono una serie di feature extractor standard che vengono utilizzati per un vasto numero di teask, in quanto risultano molto flessibili e in grado di fornire feature di alto livello che possono venire in contro alle esigenze di problemi anche molto diversi tra loro.
-
-!!!!!!!!!! CITARE !!!!!!!!!!!!!!
+Nell'ambito della Computer Vision, esistono una serie di feature extractor ([[1]](https://arxiv.org/abs/1512.03385), [[2]](https://arxiv.org/abs/1905.11946), [[3]](https://arxiv.org/abs/1409.4842), [[4]](https://arxiv.org/abs/1409.1556)) standard che vengono utilizzati per un vasto numero di teask, in quanto risultano molto flessibili e in grado di fornire feature di alto livello che possono venire in contro alle esigenze di problemi anche molto diversi tra loro.
 
 <br>
 
@@ -176,17 +172,17 @@ FX_PATIENCE = 16 # stop training if no improvement is seen for a ‘FX_PATIENCE�
 
 ### 4. Classificatore
 
-Il cuore di PyNowCast è il modello utilizzato per la classificazione che si compone di due elementi fondamentali: il feature extractor di cui si è discusso nella Sezione 3 e una rete completamente connessa a 3 livelli che svolge il ruolo di classificatore vero e proprio. La struttura semplificata dell'intero modello è mostrata in Figura ?? (presupponendo un problema di classificazione a 3 classi).
+Il cuore di PyNowCast è il modello utilizzato per la classificazione che si compone di due elementi fondamentali: il feature extractor di cui si è discusso nella Sezione 3 e una rete completamente connessa a 3 livelli che svolge il ruolo di classificatore vero e proprio. La struttura semplificata dell'intero modello è mostrata in Figura 3 (presupponendo un problema di classificazione a 3 classi).
 
 <br>
 
 | ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/classifier.png) |
 | ------------------------------------------------------------ |
-| **Figura ??.** Struttura semplificata del modello di classificazione (feature extractor + rete completamente connessa a 3 livelli). Nel caso in figura, si considera un problema di classificazione a 3 classi. |
+| **Figura 3.** Struttura semplificata del modello di classificazione (feature extractor + rete completamente connessa a 3 livelli). Nel caso in figura, si considera un problema di classificazione a 3 classi. |
 
 <br>
 
-Data un'immagine di input il feature extractor ne estrae una rappresentazione compatta (indicata con il termine "code" in Figura ??). Tale rappresentazione viene opportunamente ridimensionata e "srotolata" ottenendo un array di valori che rappresenta l'ingresso delle rate completamente connessa preposta alla classificazione. Se disponibili, anche i dati dei sensori relativi all'immagine di input sono passati in ingresso alla rete completamente connessa, affiancandosi quindi alle feature visuali. L'output finale del modello è rappresentato da $N$ valori compresi tra 0 e 1 che rappresentano le probabilità associate a ciascuna delle $N$ classi del problema specifico che si sta affrontando.
+Data un'immagine di input il feature extractor ne estrae una rappresentazione compatta (indicata con il termine "code" in Figura 3). Tale rappresentazione viene opportunamente ridimensionata e "srotolata" ottenendo un array di valori che rappresenta l'ingresso delle rate completamente connessa preposta alla classificazione. Se disponibili, anche i dati dei sensori relativi all'immagine di input sono passati in ingresso alla rete completamente connessa, affiancandosi quindi alle feature visuali. L'output finale del modello è rappresentato da $N$ valori compresi tra 0 e 1 che rappresentano le probabilità associate a ciascuna delle $N$ classi del problema specifico che si sta affrontando.
 
 <br>
 
@@ -203,7 +199,6 @@ Per avviare la procedura di allenamento del feature extractor è possibile utili
 Si propone di seguito un esempio di chiamata:
 
 - `python train_classifier.py --exp_name='nc_try1' --ds_root_path='/nas/dataset/nowcast_ds'`
-- NOTA: qualora sia stato avviato in precedenza un training del feature extractor con l'opzione `--exp_name=fx_try1`, all'avvio della procedura di training del classificatore, il feature extractor parecaricherà i pesi di `fx_try1`.
 
 Per gli utenti più esperti, è possibile modificare il file `conf.py` per personalizzare i parametri del training; salvo casi molto particolari, tuttavia, si suggerisce di utilizzare i parametri di default. Per completezza, si riporta la porzione del file di configurazione relativa all'allenamento del feature extractor:
 
@@ -246,11 +241,15 @@ Si mostra di seguito un esempio di output del comando di cui sopra:
 
 <br>
 
-### 5. Risultati
+### 5. Valutazione del Classificatore
 
-...
+Una volta ottenuto un file `.pync` in seguito all'allenamento di un classificatore, applicarlo ad un'immagine di test risulta molto semplice: è infatti sufficiente utilizzare il comando `classify` contenuto in `pync.py` specificando il path dell'immagine da classificare e il path del file `.pync` che si vuole utilizzare. Si propone di seguito un esempio di chiamata del comando.
 
 - `python pync.py classify --img_path=/your/input/image.jpg --pync_file_path=your/pync/file.pync`
+
+  
+
+In output si ottengono quindi le probabilità associate a ciascuna delle classi contemplate, con un'apposita indicazione della classa a probabilità più alta. Si veda l'esempio seguente.
 
 ```
 ▶ Classifying image '/your/input/image.jpg'
