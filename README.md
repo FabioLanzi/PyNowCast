@@ -35,7 +35,7 @@ Si avrà pertanto una directory principale, indicata con `<dataset_name>`, con u
 
 <br>
 
-| ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/ds_tree.jpg) |
+| ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/dataset.jpg) |
 | ------------------------------------------------------------ |
 | **Figura 1.** Struttura della directory contenente il dataset. I nomi indicati in verde in figura possono essere scelti a piacere. |
 
@@ -127,9 +127,9 @@ Nell'ambito della Computer Vision, esistono una serie di feature extractor stand
 
 <br>
 
-| ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/nowcast_fx.jpg) |
-| -------------- |
-| **Figura 2.** Schema a blocchi dell'autoencoder utilizzato durante la fase di allenamento del feature extractor; il feature extractor vero e proprio è rappresentato dalla sola parte di encoding (ramo "blu" in figura).     |
+| ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/extractor.jpg) |
+| ------------------------------------------------------------ |
+| **Figura 2.** Schema a blocchi dell'autoencoder utilizzato durante la fase di allenamento del feature extractor; il feature extractor vero e proprio è rappresentato dalla sola parte di encoding (ramo "blu" in figura). |
 
 <br>
 
@@ -143,7 +143,7 @@ Per adottare questa soluzione ci siamo basati su una semplice osservazione: poic
 
 In tal senso, l'uso di un autoencoder composto da un encoder e un decoder speculari risulta particolarmente appropriato. Allenando un autoencoder di questo tipo a ricostruire semplicmente le immagini di input all'uscita dell'encoder si avrà un "codice" che rappresneta per l'appunto un riassunto delle immagini di input. Trovando la giusta dimensione di tale codice, l'encoder sarà forzato a rimuovere tutte le informazioni ridondati, che nel nostro caso sono appunto le caratteristiche che non variano tra un'immagine e l'altra; al contempo dovrà preservare gli elementi mutevoli delle medesime (meteo e condizioni di illuminazione).
 
-L'autoencoder utilizzato è mostrato in Figura 2.1.
+L'autoencoder utilizzato è mostrato in Figura 2.
 
 <br>
 
@@ -180,7 +180,7 @@ Il cuore di PyNowCast è il modello utilizzato per la classificazione che si com
 
 <br>
 
-| ![classifier](/Users/Fabio/Desktop/PyNowCast/resources/classifier.png) |
+| ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/classifier.png) |
 | ------------------------------------------------------------ |
 | **Figura ??.** Struttura semplificata del modello di classificazione (feature extractor + rete completamente connessa a 3 livelli). Nel caso in figura, si considera un problema di classificazione a 3 classi. |
 
