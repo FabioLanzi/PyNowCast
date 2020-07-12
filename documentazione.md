@@ -1,12 +1,6 @@
-# ![aimagelab_airi](/Users/Fabio/Desktop/PyNowCast/resources/aimagelab_airi.png)
-
-
-
-
+# ![aimagelab_airi](/Users/Fabio/Desktop/PyNowCast/resources/intestazione.png)
 
 # ![](resources/logo.png) 
-
-
 
 ### Package Python per Algoritmi e Modelli di Nowcasting
 

@@ -1,3 +1,5 @@
+# ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/intestazione.png)
+
 # ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/logo.png) 
 ### Package Python per Algoritmi e Modelli di Nowcasting
 
