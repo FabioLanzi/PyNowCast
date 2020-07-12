@@ -15,17 +15,20 @@ Il problema del nowcasting può essere efficacemente affrontato affidandosi a te
 
 Si propone di seguito una guida rapida dall'utilizzo di PyNowCast con i principali passaggi da seguire per arrivare alla classificazione di una data immagine di input. 
 
-1. Organizzare il dataset come descritto alla Sezione 2; supponiamo ad esempio di porre tale dataset nella directory `/nas/dataset/nowcast_ds`
-2. Allenare il feature extractor come descritto nella Sezione 3 tramite l'apposito script `train_extractor.py`
+1. Clonare il repository PyNowCast ed installare i requisiti:
+   - `git clone https://github.com/FabioLanzi/PyNowCast.git`
+   - `cd PyNowCast; pip install -r requirements.txt`
+2. Organizzare il dataset come descritto alla Sezione 2; supponiamo ad esempio di porre tale dataset nella directory `/nas/dataset/nowcast_ds`
+3. Allenare il feature extractor come descritto nella Sezione 3 tramite l'apposito script `train_extractor.py`
    - esempio: `python train_extractor.py --exp_name='fx_example' --ds_root_path='/nas/dataset/nowcast_ds'`
-3. Allenare il classificatore come descritto nella Sezione 4 tramite l'apposito script `train_classifier.py`
+4. Allenare il classificatore come descritto nella Sezione 4 tramite l'apposito script `train_classifier.py`
    - esempio: `python train_classifier.py --exp_name='nc_example' --ds_root_path='/nas/dataset/nowcast_ds' --pync_file_path='/nas/pync/example.pync'`
-4. Utilizzare il classificatore precedentemente allenato su un'immagine a piacere utilizzando l'apposito comando `classify` dello script `pync.py`
+5. Utilizzare il classificatore precedentemente allenato su un'immagine a piacere utilizzando l'apposito comando `classify` dello script `pync.py`
    - esempio: `python pync.py --pync_file_path=/nas/pync/example.pync`
 
 
 
-Nelle sezioni che seguono, saranno illustrati nel dettaglio tutti i passaggi qui accennati, accompagnati da opportune motivazione alle scelte effettuate.
+Nelle sezioni che seguono, saranno illustrati nel dettaglio tutti i passaggi qui accennati, accompagnati da opportune motivazioni relative alle scelte effettuate.
 
 <br>
 
@@ -38,6 +41,10 @@ Si avrà pertanto una directory principale, indicata con `<dataset_name>`, con u
 | ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/dataset.jpg) |
 | ------------------------------------------------------------ |
 | **Figura 1.** Struttura della directory contenente il dataset. I nomi indicati in verde in figura possono essere scelti a piacere. |
+
+<br>
+
+*NOTA:* È fondamentale che tutte le immagini utilizzate per l'allenamento e la verifica del modello di nowcasting abbiano la stessa dimensione. Il package PyNowCast è stato infatti pensato per problemi di nowcasting a camera fissa, quindi si presuppone che tutte le immagini che compongono il training set e il test set provengano dalla stessa camera e presentino di conseguenza le medesime dimensioni.
 
 <br>
 
@@ -72,7 +79,7 @@ Considerando una classe con `K` immagini ed `m` valori provenienti dai sensori a
 
 Si tratta dunque di un file JSON in cui le chiavi sono i percorsi relativi alla directory contenente il file `sensors.json` stesso e i valori sono liste contenente gli `m` dati letti dai sensori per quella specifica immagine.
 
-Si noti che, se si sceglie di inserire il file `sensor.json` all'interno di una directory relativa ad una classe, anche tutte le altre classi devono contenerlo. Qualora per alcune immagini non fossero disponibili uno o più valori relativi ad un sensore, sarà sufficiente inserire al loro posto il valore`nan`. Se ad esempio per l'immagine `img1_name` non si disponesse del valore 2, all'interno del JSON si avrà:
+Si noti che, se si sceglie di inserire il file `sensor.json` all'interno di una directory relativa ad una classe, anche tutte le altre classi devono contenerlo. Qualora per alcune immagini non fossero disponibili uno o più valori relativi ad un sensore, sarà sufficiente inserire al loro posto il valore `null`. Se ad esempio per l'immagine `img1_name` non si disponesse del valore 2, all'interno del JSON si avrà:
 
 - `"img1_name": [x1_1, null, ..., x1_m]`
 
@@ -81,7 +88,7 @@ Si noti che, se si sceglie di inserire il file `sensor.json` all'interno di una 
 
 #### 2.3. Verifica della Correttezza della Struttura del Dataset
 
-È possibile verificare la correttezza della struttura del proprio dataset utilizzando lo script `chech_dataset_structure.py` tramite il seguente comando, in cui si indica con `<dataset_path>` il percorso assoluto alla directory principale del dataset:
+È possibile verificare la correttezza della struttura del proprio dataset utilizzando lo script `check_dataset_structure.py` tramite il seguente comando, in cui si indica con `<dataset_path>` il percorso assoluto alla directory principale del dataset:
 
 - `python chech_dataset_structure.py <dataset_path>`
 
@@ -96,6 +103,14 @@ Gli avvertimento saranno evidenziati con un pallino giallo e la dicitura "WARNIN
 #### 2.4. Esempio
 In Figura 1.2. si propone un esempio di struttura della directory `train` nel caso di un problema di nowcasting a due classi, in cui, partendo dall'immagine RGB e dai dati di un sensore di temperatura si vuole verificare la presenza o l'assenza di nebbia nell'immagine in ingresso. Le sotto-directory `fog` e `no_fog` contengono rispettivamente immagini con nebbia e immagini in cui la nebbia è assente. Le immagini mostrate in figura sono state acquisite presso l'Osservatorio di Modena.
 
+<br>
+
+| ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/dir_example.png) |
+| ------------------------------------------------------------ |
+| **Figura 2.** Esempio di struttura della directory `train` nel caso di un problema di nowcasting a due classi (classe `fog` e classe `no_fog`). |
+
+<br>
+
 Un esempio completo che mostra la struttura di un dataset valido, seppur contenente un numero esiguo di immagini, è contenuto all'interno di questo stesso repository:
 - `PyNowCast/dataset/example_ds`
 
@@ -103,23 +118,11 @@ Un esempio completo che mostra la struttura di un dataset valido, seppur contene
 
 <br>
 
-#### 2.5. Dimensione delle Immagini
-
-È opportuno che tutte le immagini utilizzate per l'allenamento e la verifica del modello di nowcasting abbiano la stessa dimensione. Il package PyNowCast è stato infatti pensato per problemi di nowcasting a camera fissa, quindi si presuppone che tutte le immagini che compongono il training set e il test set provengano dalla stessa camera e presentino di conseguenza le medesime dimensioni.
-
-Qualora questa condizione non sia verificata, è possibile utilizzare lo script `fix_ds_img_shapes` che andrà ad uniformare la dimensioni delle immagini del dataset.
-
-```bash
-python fix_ds_img_shapes.py <dataset_root_path> --img_height=<desired_height> --img_width=<desired_width>
-```
-
-<br>
-
 ### 3. Feature Extractor
 
 Il feature extractor è un componente essenziale della maggior parte dei modelli di classificazione basati su reti neurali; il suo compito è, come suggerisce il nome stesso, quello di estrarre una serie di caratteristiche che "riassumano" i tratti salienti dell'oggetto passato in ingresso, che nel nostro caso è un'immagine RGB proveniente da una camera fissa. 
 
-Nell'ambito della Computer Vision, esistono una serie di feature extractor ([[1]](https://arxiv.org/abs/1512.03385), [[2]](https://arxiv.org/abs/1905.11946), [[3]](https://arxiv.org/abs/1409.4842), [[4]](https://arxiv.org/abs/1409.1556)) standard che vengono utilizzati per un vasto numero di teask, in quanto risultano molto flessibili e in grado di fornire feature di alto livello che possono venire in contro alle esigenze di problemi anche molto diversi tra loro.
+Nell'ambito della Computer Vision, esistono una serie di feature extractor ([[1]](https://arxiv.org/abs/1512.03385), [[2]](https://arxiv.org/abs/1905.11946), [[3]](https://arxiv.org/abs/1409.4842), [[4]](https://arxiv.org/abs/1409.1556)) standard che vengono utilizzati per un vasto numero di teask, in quanto risultano molto flessibili e in grado di fornire feature di alto livello che possono venire incontro alle esigenze di problemi anche molto diversi tra loro.
 
 <br>
 
@@ -129,7 +132,7 @@ Nell'ambito della Computer Vision, esistono una serie di feature extractor ([[1]
 
 <br>
 
-Nel nostro caso specifico, tuttavia, risulta più opportuno affidarsi ad un feature extractor più mirato e incentrato in sulle nostre esigenze particolari. Il problema che _PyNowCast_ va ad affrontare infatti è molto vincolato e i vincoli che lo contraddistinguono, se ben sfruttati, possono semplificarlo enormemente. In questo senso, per il nostro package abbiamo deciso di orientarci verso un feature extractor personalizzato basato su un autoencoder, che sia in grado di essere allenato efficacemente in modo non supervisionato.
+Nel nostro caso specifico, tuttavia, risulta più opportuno affidarsi ad un feature extractor maggiormente mirato e incentrato sulle nostre esigenze particolari. Il problema che _PyNowCast_ va ad affrontare infatti è molto vincolato e i vincoli che lo contraddistinguono, se ben sfruttati, possono semplificarlo enormemente. In questo senso, per il nostro package abbiamo deciso di orientarci verso un feature extractor personalizzato basato su un autoencoder, che sia in grado di essere allenato efficacemente in modo non supervisionato.
 
 <br>
 
@@ -139,7 +142,7 @@ Per adottare questa soluzione ci siamo basati su una semplice osservazione: poic
 
 In tal senso, l'uso di un autoencoder composto da un encoder e un decoder speculari risulta particolarmente appropriato. Allenando un autoencoder di questo tipo a ricostruire semplicmente le immagini di input all'uscita dell'encoder si avrà un "codice" che rappresneta per l'appunto un riassunto delle immagini di input. Trovando la giusta dimensione di tale codice, l'encoder sarà forzato a rimuovere tutte le informazioni ridondati, che nel nostro caso sono appunto le caratteristiche che non variano tra un'immagine e l'altra; al contempo dovrà preservare gli elementi mutevoli delle medesime (meteo e condizioni di illuminazione).
 
-L'autoencoder utilizzato è mostrato in Figura 2.
+L'autoencoder utilizzato è mostrato in Figura 3.
 
 <br>
 
@@ -154,7 +157,7 @@ Per avviare la procedura di allenamento del feature extractor è possibile utili
 
 Si propone di seguito un esempio di chiamata:
 
-- `python train_fx.py --exp_name='fx_try1' --ds_root_path='/nas/dataset/nowcast_ds'`
+- `python train_extractor.py --exp_name='fx_try1' --ds_root_path='/nas/dataset/nowcast_ds'`
 
 Per gli utenti più esperti, è possibile modificare il file `conf.py` per personalizzare i parametri del training; salvo casi molto particolari, tuttavia, si suggerisce di utilizzare i parametri di default. Per completezza, si riporta la porzione del file di configurazione relativa all'allenamento del feature extractor:
 
@@ -172,17 +175,17 @@ FX_PATIENCE = 16 # stop training if no improvement is seen for a ‘FX_PATIENCE�
 
 ### 4. Classificatore
 
-Il cuore di PyNowCast è il modello utilizzato per la classificazione che si compone di due elementi fondamentali: il feature extractor di cui si è discusso nella Sezione 3 e una rete completamente connessa a 3 livelli che svolge il ruolo di classificatore vero e proprio. La struttura semplificata dell'intero modello è mostrata in Figura 3 (presupponendo un problema di classificazione a 3 classi).
+Il cuore di PyNowCast è il modello utilizzato per la classificazione che si compone di due elementi fondamentali: il feature extractor di cui si è discusso nella Sezione 3 e una rete completamente connessa a 3 livelli che svolge il ruolo di classificatore vero e proprio. La struttura semplificata dell'intero modello è mostrata in Figura 4 (presupponendo un problema di classificazione a 3 classi).
 
 <br>
 
 | ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/classifier.png) |
 | ------------------------------------------------------------ |
-| **Figura 3.** Struttura semplificata del modello di classificazione (feature extractor + rete completamente connessa a 3 livelli). Nel caso in figura, si considera un problema di classificazione a 3 classi. |
+| **Figura 4.** Struttura semplificata del modello di classificazione (feature extractor + rete completamente connessa a 3 livelli). Nel caso in figura, si considera un problema di classificazione a 3 classi. |
 
 <br>
 
-Data un'immagine di input il feature extractor ne estrae una rappresentazione compatta (indicata con il termine "code" in Figura 3). Tale rappresentazione viene opportunamente ridimensionata e "srotolata" ottenendo un array di valori che rappresenta l'ingresso delle rate completamente connessa preposta alla classificazione. Se disponibili, anche i dati dei sensori relativi all'immagine di input sono passati in ingresso alla rete completamente connessa, affiancandosi quindi alle feature visuali. L'output finale del modello è rappresentato da $N$ valori compresi tra 0 e 1 che rappresentano le probabilità associate a ciascuna delle $N$ classi del problema specifico che si sta affrontando.
+Data un'immagine di input il feature extractor ne estrae una rappresentazione compatta (indicata con il termine "code" in Figura 4). Tale rappresentazione viene opportunamente ridimensionata e "srotolata" ottenendo un array di valori che rappresenta l'ingresso delle rate completamente connessa preposta alla classificazione. Se disponibili, anche i dati dei sensori relativi all'immagine di input sono passati in ingresso alla rete completamente connessa, affiancandosi quindi alle feature visuali. L'output finale del modello è rappresentato da $N$ valori compresi tra 0 e 1 che rappresentano le probabilità associate a ciascuna delle $N$ classi del problema specifico che si sta affrontando.
 
 <br>
 
@@ -241,7 +244,7 @@ Si mostra di seguito un esempio di output del comando di cui sopra:
 
 <br>
 
-### 5. Valutazione del Classificatore
+### 5. Classificazione di un'Immagine
 
 Una volta ottenuto un file `.pync` in seguito all'allenamento di un classificatore, applicarlo ad un'immagine di test risulta molto semplice: è infatti sufficiente utilizzare il comando `classify` contenuto in `pync.py` specificando il path dell'immagine da classificare e il path del file `.pync` che si vuole utilizzare. Si propone di seguito un esempio di chiamata del comando.
 
