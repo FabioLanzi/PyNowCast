@@ -1,6 +1,9 @@
 # ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/intestazione.png)
 
 # ![](https://github.com/FabioLanzi/PyNowCast/blob/master/resources/logo.png) 
+
+<br>
+
 ### Package Python per Algoritmi e Modelli di Nowcasting
 
 Con il termine “nowcasting” facciamo riferimento all’insieme di tecniche finalizzate alla predizione delle condizioni meteorologiche all’istante di tempo attuale o comunque nell’immediato futuro (generalmente entro un massimo 5/10 minuti) circoscritte a una particolare zona di interesse. Questo concetto si affianca spesso a quello più noto di “forecasting”, che riguarda tuttavia previsioni di accuratezza inferiore, ma relative ad una finestra temporale più ampia, arrivando anche a stime di una settimana in avanti. 
