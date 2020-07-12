@@ -1,4 +1,13 @@
+# ![aimagelab_airi](/Users/Fabio/Desktop/PyNowCast/resources/aimagelab_airi.png)
+
+
+
+
+
 # ![](resources/logo.png) 
+
+
+
 ### Package Python per Algoritmi e Modelli di Nowcasting
 
 Con il termine “nowcasting” facciamo riferimento all’insieme di tecniche finalizzate alla predizione delle condizioni meteorologiche all’istante di tempo attuale o comunque nell’immediato futuro (generalmente entro un massimo 5/10 minuti) circoscritte a una particolare zona di interesse. Questo concetto si affianca spesso a quello più noto di “forecasting”, che riguarda tuttavia previsioni di accuratezza inferiore, ma relative ad una finestra temporale più ampia, arrivando anche a stime di una settimana in avanti. 
@@ -10,10 +19,6 @@ Il nowcasting è quindi un importante strumento statistico può fungere da suppo
 Il problema del nowcasting può essere efficacemente affrontato affidandosi a tecniche di Computer Vision e Deep Learning, limitando quindi la richiesta di sensori a semplici telecamere RGB. Questo tipo di approccio risulta particolarmente conveniente in termini di semplicità d’uso e di risorse impiegate, ma presenta una serie di problematiche di progettazione e implementazione che non sono facilmente affrontabili dai non esperti del settore. Per questo motivo nasce l’idea di `PyNowCast`, un package Python che permette di gestire algoritmi e modelli di nowcasting basati su DeepLearning in modo semplice e veloce, occupandosi in modo trasparente di tutti gli aspetti più complessi e macchinosi che caratterizzano questo tipo di tecnologia. Tramite PyCast, quindi, il nowcasting tramite Deep Learning sarà alla portata di tutti.
 
 <br>
-
-
-
-
 
 ### 1. Quick Start
 
@@ -271,4 +276,3 @@ In output si ottengono quindi le probabilità associate a ciascuna delle classi 
 ├──[2]───[fog]: 14.17 %
 └──[3]──[snow]:  1.62 %
 ```
-
