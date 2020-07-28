@@ -6,13 +6,13 @@
 
 ### Package Python per Algoritmi e Modelli di Nowcasting
 
-Con il termine “nowcasting” facciamo riferimento all’insieme di tecniche finalizzate alla predizione delle condizioni meteorologiche all’istante di tempo attuale o comunque nell’immediato futuro (generalmente entro un massimo 5/10 minuti) circoscritte a una particolare zona di interesse. Questo concetto si affianca spesso a quello più noto di “forecasting”, che riguarda tuttavia previsioni di accuratezza inferiore, ma relative ad una finestra temporale più ampia, arrivando anche a stime di una settimana in avanti. 
+Con il termine “nowcasting” facciamo riferimento all’insieme di tecniche finalizzate alla predizione delle condizioni meteorologiche all’istante di tempo attuale o comunque nell’immediato futuro (generalmente entro un massimo 5/10 minuti) circoscritte a una particolare zona di interesse. Questo concetto si affianca spesso a quello più noto di “forecasting”, che riguarda tuttavia previsioni di accuratezza inferiore, ma relative a una finestra temporale più ampia, arrivando anche a stime di una settimana in avanti. 
 
-Sebbene ad un primo sguardo nowcasting e forecasting possano apparire molto simili tra loro, le finalità di questi strumenti presentano delle sostanziali differenze. Nel caso del nowcasting, infatti, più che fare previsioni su ciò che accadrà a livello meteorologico, il fine è quello di raccogliere precise statistiche relative a uno o più fenomeni di interesse in una zona circoscritta. 
+Sebbene a un primo sguardo nowcasting e forecasting possano apparire molto simili tra loro, le finalità di questi strumenti presentano delle sostanziali differenze. Nel caso del nowcasting, infatti, più che fare previsioni su ciò che accadrà a livello meteorologico, il fine è quello di raccogliere precise statistiche relative a uno o più fenomeni di interesse in una zona circoscritta. 
 
 Il nowcasting è quindi un importante strumento statistico può fungere da supporto nelle analisi sul clima finalizzate a descrivere andamento, intensità e variabilità di fenomeni meteorologici, osservati a diversa scala temporale. Tuttavia, automatizzare il processo di nowcasting risulta essere un’operazione piuttosto complessa che, se affrontata tramite metodologia standard, richiede l’acquisto di strumentazione sofisticata e dai costi piuttosto elevati; per questo motivo, il nowcasting è spesso prerogativa delle stazioni meteo più attrezzate. L’idea è quindi quella di ridurre il più possibile il numero e la complessità dei sensori necessari al raccoglimento dei dati di nowcasting per rendere questa pratica maggiormente accessibile.
 
-Il problema del nowcasting può essere efficacemente affrontato affidandosi a tecniche di Computer Vision e Deep Learning, limitando quindi la richiesta di sensori a semplici telecamere RGB. Questo tipo di approccio risulta particolarmente conveniente in termini di semplicità d’uso e di risorse impiegate, ma presenta una serie di problematiche di progettazione e implementazione che non sono facilmente affrontabili dai non esperti del settore. Per questo motivo nasce l’idea di `PyNowCast`, un package Python che permette di gestire algoritmi e modelli di nowcasting basati su DeepLearning in modo semplice e veloce, occupandosi in modo trasparente di tutti gli aspetti più complessi e macchinosi che caratterizzano questo tipo di tecnologia. Tramite PyCast, quindi, il nowcasting tramite Deep Learning sarà alla portata di tutti.
+Il problema del nowcasting può essere efficacemente affrontato affidandosi a tecniche di Computer Vision e Deep Learning, limitando quindi la richiesta di sensori a semplici telecamere RGB. Questo tipo di approccio risulta particolarmente conveniente in termini di semplicità d’uso e di risorse impiegate, ma presenta una serie di problematiche di progettazione e implementazione che non sono facilmente affrontabili dai non esperti del settore. Per questo motivo nasce l’idea di `PyNowCast`, un package Python che permette di gestire algoritmi e modelli di nowcasting basati su DeepLearning in modo semplice e veloce, occupandosi in modo trasparente di tutti gli aspetti più complessi e macchinosi che caratterizzano questo tipo di tecnologia. Tramite PyCast, quindi, il nowcasting tramite Deep Learning sarà alla portata di tutti
 
 <br>
 
@@ -30,8 +30,6 @@ Si propone di seguito una guida rapida dall'utilizzo di PyNowCast con i principa
    - esempio: `python train_classifier.py --exp_name='nc_example' --ds_root_path='/nas/dataset/nowcast_ds' --pync_file_path='/nas/pync/example.pync'`
 5. Utilizzare il classificatore precedentemente allenato su un'immagine a piacere utilizzando l'apposito comando `classify` dello script `pync.py`
    - esempio: `python pync.py --pync_file_path=/nas/pync/example.pync`
-
-
 
 Nelle sezioni che seguono, saranno illustrati nel dettaglio tutti i passaggi qui accennati, accompagnati da opportune motivazioni relative alle scelte effettuate.
 
@@ -88,7 +86,6 @@ Si noti che, se si sceglie di inserire il file `sensor.json` all'interno di una 
 
 - `"img1_name": [x1_1, null, ..., x1_m]`
 
-
 <br>
 
 #### 2.3. Verifica della Correttezza della Struttura del Dataset
@@ -97,7 +94,7 @@ Si noti che, se si sceglie di inserire il file `sensor.json` all'interno di una 
 
 - `python chech_dataset_structure.py <dataset_path>`
 
-Lo script verificherà la presenza di errori strutturali e li comunicherà all'untento con un apposito messaggio auto-esplicativo. Saranno inoltre forniti avvertimenti  su eventuali aspetti che non si ritengono ottimali per iniziare la procedura di traning; ad esempio potrebbe essere segnalata la presenza di un numero di immagini ritenuto insufficiente per una o più classi.
+Lo script verificherà la presenza di errori strutturali e li comunicherà all'utente con un apposito messaggio auto-esplicativo. Saranno inoltre forniti avvertimenti  su eventuali aspetti che non si ritengono ottimali per iniziare la procedura di traning; ad esempio potrebbe essere segnalata la presenza di un numero di immagini ritenuto insufficiente per una o più classi.
 
 Gli errori saranno evidenziati con un pallino rosso e la dicitura "ERROR" e andranno necessariamente risolti prima di intraprendere la procedura di allenamento del modello di nowcasting.
 
@@ -127,7 +124,7 @@ Un esempio completo che mostra la struttura di un dataset valido, seppur contene
 
 Il feature extractor è un componente essenziale della maggior parte dei modelli di classificazione basati su reti neurali; il suo compito è, come suggerisce il nome stesso, quello di estrarre una serie di caratteristiche che "riassumano" i tratti salienti dell'oggetto passato in ingresso, che nel nostro caso è un'immagine RGB proveniente da una camera fissa. 
 
-Nell'ambito della Computer Vision, esistono una serie di feature extractor ([[1]](https://arxiv.org/abs/1512.03385), [[2]](https://arxiv.org/abs/1905.11946), [[3]](https://arxiv.org/abs/1409.4842), [[4]](https://arxiv.org/abs/1409.1556)) standard che vengono utilizzati per un vasto numero di teask, in quanto risultano molto flessibili e in grado di fornire feature di alto livello che possono venire incontro alle esigenze di problemi anche molto diversi tra loro.
+Nell'ambito della Computer Vision, esistono una serie di feature extractor ([[1]](https://arxiv.org/abs/1512.03385), [[2]](https://arxiv.org/abs/1905.11946), [[3]](https://arxiv.org/abs/1409.4842), [[4]](https://arxiv.org/abs/1409.1556)) standard che vengono utilizzati per un vasto numero di task, in quanto risultano molto flessibili e in grado di fornire feature di alto livello che possono venire incontro alle esigenze di problemi anche molto diversi tra loro.
 
 <br>
 
@@ -143,9 +140,9 @@ Nel nostro caso specifico, tuttavia, risulta più opportuno affidarsi ad un feat
 
 #### 3.1. Autoencoder
 
-Per adottare questa soluzione ci siamo basati su una semplice osservazione: poiché ci troviamo a trattare immagini provenienti da una camera fissa che riprende una certa porzione di paesaggio, gli elementi che variano tra un'immagine e l'altra sono essenzilamente la condizione metereologica e le condizioni di illuminazione. Fortunatamente ciò che varia sono esattamente le feature che servono ad un classificatore che si occupa di nowcasting. 
+Per adottare questa soluzione ci siamo basati su una semplice osservazione: poiché ci troviamo a trattare immagini provenienti da una camera fissa che riprende una certa porzione di paesaggio, gli elementi che variano tra un'immagine e l'altra sono essenzialmente la condizione meteorologica e le condizioni di illuminazione. Fortunatamente ciò che varia sono esattamente le feature che servono ad un classificatore che si occupa di nowcasting. 
 
-In tal senso, l'uso di un autoencoder composto da un encoder e un decoder speculari risulta particolarmente appropriato. Allenando un autoencoder di questo tipo a ricostruire semplicmente le immagini di input all'uscita dell'encoder si avrà un "codice" che rappresneta per l'appunto un riassunto delle immagini di input. Trovando la giusta dimensione di tale codice, l'encoder sarà forzato a rimuovere tutte le informazioni ridondati, che nel nostro caso sono appunto le caratteristiche che non variano tra un'immagine e l'altra; al contempo dovrà preservare gli elementi mutevoli delle medesime (meteo e condizioni di illuminazione).
+In tal senso, l'uso di un autoencoder composto da un encoder e un decoder speculari risulta particolarmente appropriato. Allenando un autoencoder di questo tipo a ricostruire semplicemente le immagini di input all'uscita dell'encoder si avrà un "codice" che rappresenta per l'appunto un riassunto delle immagini di input. Trovando la giusta dimensione di tale codice, l'encoder sarà forzato a rimuovere tutte le informazioni ridondati, che nel nostro caso sono appunto le caratteristiche che non variano tra un'immagine e l'altra; al contempo dovrà preservare gli elementi mutevoli delle medesime (meteo e condizioni di illuminazione).
 
 L'autoencoder utilizzato è mostrato in Figura 3.
 
@@ -155,7 +152,7 @@ L'autoencoder utilizzato è mostrato in Figura 3.
 
 Per avviare la procedura di allenamento del feature extractor è possibile utilizzare lo script `train_extractor.py` con le seguenti opzioni:
 
-- `--exp_name`: etichetta assegnata alla corrente procedura di allenamento del feature extractor;  per differenziare le etichette assegnate al feature extractor da quelle assegnate al modelo utilizzato per la classificazione, si suggerisce di utilizzare il prefizzo `fx_`. 
+- `--exp_name`: etichetta assegnata alla corrente procedura di allenamento del feature extractor;  per differenziare le etichette assegnate al feature extractor da quelle assegnate al modello utilizzato per la classificazione, si suggerisce di utilizzare il prefisso `fx_`. 
 
 - `--ds_root_path`: percorso della directory principale contenete il proprio dataset.
 - `--device`: tramite questa opzione è possibile selezionare il device su cui sarà effettuata la procedura di allenamento del feature extractor; i possibili valori sono i seguenti: `'cuda'` o `'cuda:<numero specifica gpu>'` per un allenamento su GPU (consigliato) o `'cpu'` per un allenamento su CPU (sconsigliato). Se non specificato, il valore di default è `'cuda'`
@@ -169,9 +166,9 @@ Per gli utenti più esperti, è possibile modificare il file `conf.py` per perso
 
 ```python
 # feature extractor settings
-FX_LR = 0.0001  # learning rate used to trane the feature extractor
+FX_LR = 0.0001  # learning rate used to train the feature extractor
 FX_N_WORKERS = 4  # worker(s) number of the dataloader
-FX_BATCH_SIZE = 8  # batch size used to trane the feature extractor
+FX_BATCH_SIZE = 8  # batch size used to train the feature extractor
 FX_MAX_EPOCHS = 256  # maximum training duration (# epochs)
 FX_PATIENCE = 16 # stop training if no improvement is seen for a ‘FX_PATIENCE’ number of epochs
 ```
@@ -198,7 +195,7 @@ Data un'immagine di input il feature extractor ne estrae una rappresentazione co
 
 Per avviare la procedura di allenamento del feature extractor è possibile utilizzare lo script `train_classifier.py` con le seguenti opzioni:
 
-- `--exp_name`: etichetta assegnata alla corrente procedura di allenamento del classificatore;  per differenziare le etichette assegnate al classificatore da quelle assegnate al feature extractor, si suggerisce di utilizzare il prefizzo `nc_`. 
+- `--exp_name`: etichetta assegnata alla corrente procedura di allenamento del classificatore;  per differenziare le etichette assegnate al classificatore da quelle assegnate al feature extractor, si suggerisce di utilizzare il prefisso `nc_`. 
 - NOTA: se è stato precedentemente allenato un feature extractor con un dato `exp_name`, è possibile utilizzare la medesima etichetta anche per il classificatore (a meno del prefisso) per caricare automaticamente i pesi del feature extractor velocizzando notevolmente la procedura di training del classificatore.
 - `--ds_root_path`: percorso della directory principale contenete il proprio dataset.
 - `--pync_file_path`: percorso del file`.pync` contenente i risultati della procedura di allenamento del classificatore; se non specificato, tale file sarà salvato nell'attuale working directory e il suo nome sarà quello specificato con l'opzione `--exp_name` (più l'estensione `.pync`).
@@ -213,9 +210,9 @@ Per gli utenti più esperti, è possibile modificare il file `conf.py` per perso
 
 ```python
 # nowcasting classifier settings
-NC_LR = 0.0001  # learning rate used to trane the nowcasting classifier
+NC_LR = 0.0001  # learning rate used to train the nowcasting classifier
 NC_N_WORKERS = 4  # worker(s) number of the dataloader
-NC_BATCH_SIZE = 8  # batch size used to trane the nowcasting classifier
+NC_BATCH_SIZE = 8  # batch size used to train the nowcasting classifier
 NC_MAX_EPOCHS = 256  # maximum training duration (# epochs)
 NC_PATIENCE = 16 # stop training if no improvement is seen for a ‘NC_PATIENCE’ number of epochs
 ```
@@ -257,7 +254,7 @@ Una volta ottenuto un file `.pync` in seguito all'allenamento di un classificato
 
   
 
-In output si ottengono quindi le probabilità associate a ciascuna delle classi contemplate, con un'apposita indicazione della classa a probabilità più alta. Si veda l'esempio seguente.
+In output si ottengono quindi le probabilità associate a ciascuna delle classi contemplate, con un'apposita indicazione della classe a probabilità più alta. Si veda l'esempio seguente.
 
 ```
 ▶ Classifying image '/your/input/image.jpg'
