@@ -47,6 +47,9 @@ class Trainer(object):
         self.sdata_range = (training_set.s_min, training_set.s_max)
         self.model = NCClassifier(n_classes=len(self.classes), sensor_data_len=self.sensor_data_len)
         self.model = self.model.to(device)
+        w_path = Path(__file__).parent / 'log' / exp_name.replace('nc', 'fx') / 'best.pth'
+        if w_path.exists():
+            self.model.extractor.load_w(w_path)
 
         # init optimizer
         self.optimizer = optim.Adam(params=self.model.parameters(), lr=conf.NC_LR)
@@ -56,7 +59,7 @@ class Trainer(object):
         print(f'▶ You can monitor training progress with Tensorboard')
         if not self.log_path.exists():
             self.log_path.makedirs()
-        print(f'└── tensorboard --logdir={self.log_path.parent}\n')
+        print(f'└── tensorboard --logdir={self.log_path.parent.abspath()}\n')
         self.sw = SummaryWriter(self.log_path)
         self.train_losses = []
         self.test_losses = []

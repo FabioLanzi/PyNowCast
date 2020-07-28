@@ -52,7 +52,7 @@ class Trainer(object):
         print(f'▶ You can monitor training progress with Tensorboard')
         if not self.log_path.exists():
             self.log_path.makedirs()
-        print(f'└── tensorboard --logdir={self.log_path.parent}\n')
+        print(f'└── tensorboard --logdir={self.log_path.parent.abspath()}\n')
         self.sw = SummaryWriter(self.log_path)
         self.train_losses = []
         self.test_losses = []

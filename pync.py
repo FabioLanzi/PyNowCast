@@ -76,7 +76,7 @@ def _classify(img_path, pync_file_path, sensor_data, device):
 
 
 @click.command()
-@click.option('--pync-file-path', type=click.Path(exists=True), required=True, help=H2)
+@click.option('--pync_file_path', type=click.Path(exists=True), required=True, help=H2)
 def show_info(pync_file_path):
     # type: (str) -> None
 

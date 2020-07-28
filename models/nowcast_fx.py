@@ -4,14 +4,13 @@
 from typing import Optional
 
 import torch
+from google_drive_downloader import GoogleDriveDownloader as gdd
 from path import Path
 from torch import nn
-from typing import Optional
 
 from models.base_model import BaseModel
 from models.basic_conv2d import BasicConv2D
 from models.residuals import MultipleResidualBlocks
-from google_drive_downloader import GoogleDriveDownloader as gdd
 
 
 PRETRAINED_WEIGHTS_URL = '1qms6RNZVlAPrjOnD4kjovJ8HcmNxdZ_4'
