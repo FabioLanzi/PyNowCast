@@ -19,9 +19,10 @@ GREEN_BALL = termcolor.colored('⬤', 'green')
 def count_files(directory):
     # type: (Path) -> int
     count = 0
-    for file in directory.files():
-        if file.basename() != 'sensors.json':
-            count += 1
+    for subdir in directory.dirs():
+        for file in subdir.files():
+            if file.basename() != 'sensors.json':
+                count += 1
     return count
 
 
