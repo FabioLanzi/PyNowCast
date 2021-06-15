@@ -163,6 +163,14 @@ class Trainer(object):
             self.patience = self.patience - 1
         print(f'{self.patience}/{conf.FX_PATIENCE}')
 
+        if self.patience == 0:
+            self.show_completion_msg()
+
+
+    def show_completion_msg(self):
+        print(f'\n▶ DONE: the feature extractor training procedure has been completed')
+        exit(0)
+
 
     def run(self):
         """
@@ -176,6 +184,8 @@ class Trainer(object):
 
             self.epoch += 1
             self.save_ck()
+
+        self.show_completion_msg()
 
 
 H1 = 'experiment name: string without spaces'

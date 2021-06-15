@@ -213,6 +213,7 @@ class Trainer(object):
     def show_completion_msg(self):
         print(f'\n▶ DONE: the classifier training procedure has been completed')
         print(f'└── you can find model weights and metadata @ \'{self.log_path}\'\n')
+        exit(0)
 
 
 H1 = 'experiment name: string without spaces'
